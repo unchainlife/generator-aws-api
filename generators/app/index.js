@@ -27,20 +27,20 @@ class AwsApiGenerator extends Generator {
       }
     ]);
     const extensions = {
-      "python": ".py",
-      "typescript": ".ts",
-      "javascript": ".js",
+      "python": "py",
+      "typescript": "ts",
+      "javascript": "js",
     };
      
     this.answers.extension = extensions[this.answers.language];
-    const ignore = Object.values(extensions).filter(ext => ext != this.answers.extension).map(ext => `**/*${ext}.ejs`);
+    const ignore = Object.values(extensions).filter(ext => ext != this.answers.extension).map(ext => `**/*.${ext}.ejs`);
 
     await this.fs.copyTplAsync(
       this.templatePath('**/*.ejs'),
       this.destinationRoot(),
       this.answers, 
       {},
-      { globOptions: { ignore } },
+      { globOptions: { dot: true, ignore } },
     );
   }
 }
