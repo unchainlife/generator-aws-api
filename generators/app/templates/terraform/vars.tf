@@ -1,4 +1,0 @@
-variable "account" {
-  type = "string"
-}
-

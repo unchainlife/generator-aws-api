@@ -1,0 +1,21 @@
+locals {
+  region            = "<%= region %>"
+  project           = "<%= project %>"
+  environment       = terraform.workspace
+  prefix            = "${local.project}_${local.environment}"
+}
+
+provider "aws" {
+  region            = "<%= region %>"
+  profile           = "default"
+}
+
+terraform {
+  backend "s3" {
+    encrypt         = true
+    region          = "<%= region %>"
+    bucket          = "foo-tf"
+    dynamodb_table  = "terraform-lock"
+    key             = "<%= project %>.tfstate"
+  }
+}

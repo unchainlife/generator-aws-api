@@ -1,0 +1,30 @@
+resource "aws_vpc" "<%=vpc%>" {
+    cidr_block = "10.0.0.0/16"
+    tags = {
+      Name = "${local.prefix}_vpc_<%=vpc%>"
+    }
+}
+
+resource "aws_subnet" "<%=vpc%>_A" {
+    vpc_id = aws_vpc.<%=vpc%>.id
+    cidr_block = "10.0.0.0/20"
+    tags = {
+      Name = "${local.prefix}_subnet_<%=vpc%>-a"
+    }
+}
+
+resource "aws_subnet" "<%=vpc%>_B" {
+    vpc_id = aws_vpc.<%=vpc%>.id
+    cidr_block = "10.0.16.0/20"
+    tags = {
+       Name = "${local.prefix}_subnet_<%=vpc%>-b"
+    }
+}
+
+resource "aws_subnet" "<%=vpc%>_C" {
+    vpc_id = aws_vpc.<%=vpc%>.id
+    cidr_block = "10.0.32.0/20"
+    tags = {
+        Name = "${local.prefix}_subnet_<%=vpc%>-c"
+    }
+}

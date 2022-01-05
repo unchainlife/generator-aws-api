@@ -1,12 +1,11 @@
 const fs = require('fs/promises');
 const Generator = require('yeoman-generator');
+const { pascalCase } = require("../../common");
 
 class AwsApiGenerator extends Generator {
-  constructor(args, opts) {
-    super(args, opts);
-
-    this.argument("app", { type: String, required: true });
-  }
+  // constructor(args, opts) {
+  //   super(args, opts);
+  // }
 
   async core_application() {
     this.answers = await this.prompt([
@@ -14,33 +13,21 @@ class AwsApiGenerator extends Generator {
         name: "project",
         type: "input",
         default: "MyProject",
+        validate: pascalCase,
       },
       {
-        name: "language",
+        name: "region",
         type: "list",
-        choices: [
-          "python",
-          "typescript",
-          "javascript"
-        ],
-        store: true,
+        choices: ["eu-west-2"]
       }
     ]);
-    const extensions = {
-      "python": "py",
-      "typescript": "ts",
-      "javascript": "js",
-    };
-     
-    this.answers.extension = extensions[this.answers.language];
-    const ignore = Object.values(extensions).filter(ext => ext != this.answers.extension).map(ext => `**/*.${ext}.ejs`);
 
     await this.fs.copyTplAsync(
-      this.templatePath('**/*.ejs'),
+      this.templatePath('**/*'),
       this.destinationRoot(),
-      this.answers, 
+      this.answers,
       {},
-      { globOptions: { dot: true, ignore } },
+      { globOptions: { dot: true } },
     );
   }
 }
