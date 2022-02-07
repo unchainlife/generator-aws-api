@@ -1,0 +1,17 @@
+resource "aws_cloudwatch_event_rule" "<%= `${eventbus}_${name}` %>" {
+    event_bus_name  = aws_cloudwatch_event_bus.<%= eventbus %>.name
+    name            = "${local.prefix}_<%= eventbus %>_<%= eventbus %>_<%= name %>"
+    description     = "<%= description %>"
+
+    event_pattern = jsonencode({
+      "source" = [
+        "<%= source %>"
+      ],
+      "detail-type" = [
+        "<%= detailType %>"
+      ],
+      "detail" = {
+        "state" = ["failed", "success"]
+      }
+    })
+}

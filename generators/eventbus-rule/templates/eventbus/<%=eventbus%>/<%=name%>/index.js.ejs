@@ -1,0 +1,19 @@
+const AWS = require('aws-sdk');
+
+const Ok = response => {
+    const body = JSON.stringify(response);
+    const result = {
+        statusCode: 200,
+        headers: {
+            "Content-Type": "application/json",
+            "Content-Length": body.length
+        },
+        body
+    };
+    return result;
+}
+
+exports.handler = async (event, context) => {
+    const result = Ok({ message: 'OK', args: Object.keys(event) });
+    return await Promise.resolve(result);
+}
