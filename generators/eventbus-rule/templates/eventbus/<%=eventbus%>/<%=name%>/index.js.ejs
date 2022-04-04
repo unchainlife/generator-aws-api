@@ -14,6 +14,7 @@ const Ok = response => {
 }
 
 exports.handler = async (event, context) => {
-    const result = Ok({ message: 'OK', args: Object.keys(event) });
+    const result = Ok({ message: 'OK', event });
+    console.log(result);
     return await Promise.resolve(result);
 }

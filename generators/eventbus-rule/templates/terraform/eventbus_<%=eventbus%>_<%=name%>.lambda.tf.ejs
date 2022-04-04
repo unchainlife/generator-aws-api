@@ -58,7 +58,8 @@ resource "aws_cloudwatch_log_group" "<%=logname%>" {
 }
 
 resource "aws_cloudwatch_event_target" "<%=fullname%>" {
-  rule      = aws_cloudwatch_event_rule.<%=name%>.name
-  target_id = "ExecuteLambda"
-  arn       = aws_lambda_function.<%=fullname%>.arn
+  event_bus_name  = aws_cloudwatch_event_bus.<%= eventbus %>.name
+  rule            = aws_cloudwatch_event_rule.<%=eventbus%>_<%=name%>.name
+  target_id       = "ExecuteLambda"
+  arn             = aws_lambda_function.<%=fullname%>.arn
 }

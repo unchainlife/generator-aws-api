@@ -6,6 +6,7 @@ const camelCase = s => /[a-z][A-Za-z0-9]*/.test(s) || "Value must be camelCase";
 const kebabCase = s => /[a-z][a-z0-9-]*/.test(s) || "Value must be kebab-case";
 const snakeCase = s => /[a-z][a-z0-9_]*/.test(s) || "Value must be snake_case";
 const required = s => /.+/.test(s) || "Value is required";
+const sourceName = s => /([a-z]+)(\.[a-z]+)+/.test(s) || "Must be an app name com.mycompany.mpapp";
 
 const toKebabCase = s => s.match(/[A-Z][a-z0-9]*/g).map(s => s.toLowerCase()).join('-');
 
@@ -64,6 +65,7 @@ module.exports = {
 	vpcs,
 	eventBuses,
 	required,
+	sourceName,
 	apis,
 	apiResources,
 	pascalCase,

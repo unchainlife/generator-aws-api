@@ -1,5 +1,5 @@
 const Generator = require('yeoman-generator');
-const { processDestinationPath, pascalCase, eventBuses, required, languages, languageRuntime, languageIgnorePattern, vpcs } = require('../../common');
+const { processDestinationPath, pascalCase, eventBuses, required, languages, languageRuntime, languageIgnorePattern, vpcs, sourceName } = require('../../common');
 
 class ApiGenerator extends Generator {
 
@@ -23,8 +23,9 @@ class ApiGenerator extends Generator {
       }, {
         name: 'source',
         message: 'Event Source',
+        default: 'com.mycompany.myapp',
         type: 'input',
-        validate: required,
+        validate: souceName,
         store: true,
       }, {
         name: 'detailType',
