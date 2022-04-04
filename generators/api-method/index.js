@@ -26,7 +26,7 @@ class ApiGenerator extends Generator {
         name: 'language',
         type: 'list',
         choices: languages(),
-        default: 'python',
+        default: 'javascript',
       }
     ]);
     const ignore = languageIgnorePattern(this.answers.language);
@@ -43,4 +43,3 @@ class ApiGenerator extends Generator {
 }
 
 module.exports = ApiGenerator;
-

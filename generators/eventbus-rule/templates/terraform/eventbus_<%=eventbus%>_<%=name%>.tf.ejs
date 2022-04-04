@@ -1,0 +1,19 @@
+<%
+  fullname = `${eventbus}_${name}`;
+%>
+resource "aws_cloudwatch_event_rule" "<%=fullname%>" {
+    event_bus_name  = aws_cloudwatch_event_bus.<%= eventbus %>.name
+    name            = "${local.prefix}_eventbus_<%= fullname %>"
+    description     = "<%= description %>"
+
+    event_pattern = jsonencode({
+      "source" = [
+        "<%= source %>"
+      ]
+      "detail-type" = [
+        "<%= detailType %>"
+      ]
+      # "detail" = {
+      # }
+    })
+}

@@ -5,18 +5,20 @@ const pascalCase = s => /[A-Z][A-Za-z0-9]*/.test(s) || "Value must be PascalCase
 const camelCase = s => /[a-z][A-Za-z0-9]*/.test(s) || "Value must be camelCase";
 const kebabCase = s => /[a-z][a-z0-9-]*/.test(s) || "Value must be kebab-case";
 const snakeCase = s => /[a-z][a-z0-9_]*/.test(s) || "Value must be snake_case";
+const required = s => /.+/.test(s) || "Value is required";
+const sourceName = s => /([a-z]+)(\.[a-z]+)+/.test(s) || "Must be an app name com.mycompany.mpapp";
 
 const toKebabCase = s => s.match(/[A-Z][a-z0-9]*/g).map(s => s.toLowerCase()).join('-');
 
 const _languages = {
-	"python": {
-		extension: "py",
-		runtime: "python3.9",
-	},
-	"typescript": {
-		extension: "ts",
-		runtime: "nodejs14.x",
-	},
+	// "python": {
+	// 	extension: "py",
+	// 	runtime: "python3.9",
+	// },
+	// "typescript": {
+	// 	extension: "ts",
+	// 	runtime: "nodejs14.x",
+	// },
 	"javascript": {
 		extension: "js",
 		runtime: "nodejs14.x",
@@ -39,6 +41,12 @@ const vpcs = root => [
 	     .filter(exp => exp)
 	     .map(exp => exp[1])
 	];
+const eventBuses = root => () => [
+	...fs.readdirSync(path.join(root, 'terraform'))
+			.map(f => f.match(new RegExp(`^eventbus_([^_]+)\.tf$`)))
+			.filter(exp => exp)
+			.map(exp => exp[1])
+];
 const apis = root => () => [
 	...fs.readdirSync(path.join(root, 'terraform'))
 	     .map(f => f.match(new RegExp(`^api_([^_]+)\.tf$`)))
@@ -55,6 +63,9 @@ const apiResources = root => ({ api }) => [
 
 module.exports = {
 	vpcs,
+	eventBuses,
+	required,
+	sourceName,
 	apis,
 	apiResources,
 	pascalCase,
