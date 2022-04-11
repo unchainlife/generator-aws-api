@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const Generator = require('yeoman-generator');
 
 const pascalCase = s => /[A-Z][A-Za-z0-9]*/.test(s) || "Value must be PascalCase";
 const camelCase = s => /[a-z][A-Za-z0-9]*/.test(s) || "Value must be camelCase";
@@ -37,31 +38,65 @@ const languageIgnorePattern = language => Object
 const vpcs = root => [
 	'',
 	...fs.readdirSync(path.join(root, 'terraform'))
-	     .map(f => f.match(new RegExp(`^api_([^_]+)\.tf$`)))
+	     .map(f => f.match(new RegExp(`^vpc__([^_]+)\.tf$`)))
 	     .filter(exp => exp)
 	     .map(exp => exp[1])
 	];
+
 const eventBuses = root => () => [
 	...fs.readdirSync(path.join(root, 'terraform'))
-			.map(f => f.match(new RegExp(`^eventbus_([^_]+)\.tf$`)))
+			.map(f => f.match(new RegExp(`^eventbus__([^_]+)\.tf$`)))
 			.filter(exp => exp)
 			.map(exp => exp[1])
 ];
+
 const apis = root => () => [
 	...fs.readdirSync(path.join(root, 'terraform'))
-	     .map(f => f.match(new RegExp(`^api_([^_]+)\.tf$`)))
-	     .filter(exp => exp)
-	     .map(exp => exp[1])
-];
-const apiResources = root => ({ api }) => [
-	'',
-	...fs.readdirSync(path.join(root, 'terraform'))
-	     .map(f => f.match(new RegExp(`^api_${api}_([^_]+)\.tf$`)))
+	     .map(f => f.match(new RegExp(`^api__([^_]+)\.tf$`)))
 	     .filter(exp => exp)
 	     .map(exp => exp[1])
 ];
 
+const apiResources = root => ({ api }) => [
+	'',
+	...fs.readdirSync(path.join(root, 'terraform'))
+	     .map(f => f.match(new RegExp(`^api__${api}__([^_]+)\.tf$`)))
+	     .filter(exp => exp)
+	     .map(exp => exp[1])
+];
+
+class BaseGenerator extends Generator {
+	constructor(args, opts) {
+		super(args, opts);
+		this._inputs = { };
+	}
+
+	_input({ name, dataType = String, ...prompt }) {
+    this.argument(name, { type: dataType, required: false });
+    this._inputs[name] = prompt;
+  }
+
+	async _prompt() {
+		let prompts = Object.entries(this._inputs)
+			.map(([name, prompt]) => [name, prompt, this.options[name]])
+      .filter(([name, { type, choices, validate }, value]) =>
+        typeof value === 'undefined' ||
+        validate && validate(value) !== true ||
+        type === 'list' && !choices.includes(value)
+      )
+      .map(([name, prompt]) => ({ name, ...prompt }));
+
+    let answers = await this.prompt(prompts);
+
+    return {
+      ...this.options,
+      answers
+    };
+	}
+}
+
 module.exports = {
+	BaseGenerator,
 	vpcs,
 	eventBuses,
 	required,

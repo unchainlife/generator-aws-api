@@ -1,21 +1,20 @@
-const Generator = require('yeoman-generator');
-const { vpcs } = require("../../common");
+const { BaseGenerator, vpcs } = require("../../common");
 
-class ApiGenerator extends Generator {
+class ApiGenerator extends BaseGenerator {
+
+  constructor(args, opts) {
+    super(args, opts);
+
+    this._input({ name: 'vpc', type: 'list', choices: vpc() });
+  }
 
   async create_vpc() {
-    this.answers = await this.prompt([
-      {
-        name: 'vpc',
-        type: 'list',
-        default: vpcs(),
-      }
-    ]);
+    let answers = await this._prompt();
 
     await this.fs.copyTplAsync(
       this.templatePath('**/*.*'),
       this.destinationRoot(),
-      this.answers,
+      answers,
       {},
       { globOptions: { dot: true } },
     )
@@ -23,4 +22,3 @@ class ApiGenerator extends Generator {
 }
 
 module.exports = ApiGenerator;
-

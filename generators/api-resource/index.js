@@ -1,33 +1,23 @@
-const Generator = require('yeoman-generator');
-const { pascalCase, apis, apiResources, toKebabCase } = require("../../common");
+const { BaseGenerator, pascalCase, apis, apiResources, toKebabCase } = require("../../common");
 
-class ApiGenerator extends Generator {
+class ApiGenerator extends BaseGenerator {
+
+  constructor(args, opts) {
+    super(args, opts);
+
+    this._input({ name: "api", type: "list", choices: apis(this.destinationRoot()) });
+    this._input({ name: "parent", type: "list", choices: apiResources(this.destinationRoot()) });
+    this._input({ name: "resource", type: "input", validate: pascalCase });
+    this._input({ name: "pathpart", type: "input", default: ({ resource }) => toKebabCase(resource)})
+  }
 
   async create_api_resource() {
-    this.answers = await this.prompt([
-      {
-        name: 'api',
-        type: 'list',
-        choices: apis(this.destinationRoot()),
-      }, {
-        name: 'parent',
-        type: 'list',
-        choices: apiResources(this.destinationRoot()),
-      }, {
-        name: 'resource',
-        type: 'input',
-        validate: pascalCase,
-      }, {
-        name: 'pathpart',
-        type: 'input',
-        default: ({ resource }) => toKebabCase(resource)
-      }
-    ]);
+    let answers = await this._prompt();
 
     await this.fs.copyTplAsync(
       this.templatePath('**/*.ejs'),
       this.destinationRoot(),
-      this.answers,
+      answers,
       {},
       { globOptions: { dot: true } },
     )
@@ -35,4 +25,3 @@ class ApiGenerator extends Generator {
 }
 
 module.exports = ApiGenerator;
-

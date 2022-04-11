@@ -1,16 +1,15 @@
-const Generator = require('yeoman-generator');
-const { processDestinationPath, pascalCase } = require('../../common');
+const { BaseGenerator, processDestinationPath, pascalCase } = require('../../common');
 
-class ApiGenerator extends Generator {
+class ApiGenerator extends BaseGenerator {
+
+  constructor(args, opts) {
+    super(args, opts);
+
+    this._input({ name: "name", type: 'input', validate: pascalCase })
+  }
 
   async create_api() {
-    this.answers = await this.prompt([
-      {
-        name: 'name',
-        type: 'input',
-        validate: pascalCase,
-      }
-    ]);
+    let answers = await this._prompt();
 
     await this.fs.copyTplAsync(
       this.templatePath('**/*.ejs'),
@@ -25,4 +24,3 @@ class ApiGenerator extends Generator {
 }
 
 module.exports = ApiGenerator;
-

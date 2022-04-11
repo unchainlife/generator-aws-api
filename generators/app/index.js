@@ -1,31 +1,21 @@
 const fs = require('fs/promises');
-const Generator = require('yeoman-generator');
-const { pascalCase } = require("../../common");
+const { BaseGenerator, pascalCase } = require("../../common");
 
-class AwsApiGenerator extends Generator {
-  // constructor(args, opts) {
-  //   super(args, opts);
-  // }
+class AwsApiGenerator extends BaseGenerator {
+  constructor(args, opts) {
+    super(args, opts);
+
+    this._input({ name: "project", type: "input", validate: pascalCase });
+    this._input({ name: "region", type: "list", choices: ["eu-west-2"]});
+  }
 
   async core_application() {
-    this.answers = await this.prompt([
-      {
-        name: "project",
-        type: "input",
-        default: "MyProject",
-        validate: pascalCase,
-      },
-      {
-        name: "region",
-        type: "list",
-        choices: ["eu-west-2"]
-      }
-    ]);
+    let state = await this._prompt();
 
     await this.fs.copyTplAsync(
       this.templatePath('**/*'),
       this.destinationRoot(),
-      this.answers,
+      state,
       {},
       { globOptions: { dot: true } },
     );
@@ -33,4 +23,3 @@ class AwsApiGenerator extends Generator {
 }
 
 module.exports = AwsApiGenerator;
-
