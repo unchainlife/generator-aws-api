@@ -78,19 +78,19 @@ class BaseGenerator extends Generator {
 
 	async _prompt() {
 		let prompts = Object.entries(this._inputs)
-			.map(([name, prompt]) => [name, prompt, this.options[name]])
+			.map(([name, prompt]) => [name, prompt, this.options && this.options[name]])
       .filter(([name, { type, choices, validate }, value]) =>
         typeof value === 'undefined' ||
         validate && validate(value) !== true ||
-        type === 'list' && !choices.includes(value)
+        type === 'list' && !(typeof choices === 'function' ? choices(this.options) : choices).includes(value)
       )
       .map(([name, prompt]) => ({ name, ...prompt }));
 
-    let answers = await this.prompt(prompts);
+    let answers = await this.prompt(prompts) || {};
 
     return {
       ...this.options,
-      answers
+      ...answers
     };
 	}
 }

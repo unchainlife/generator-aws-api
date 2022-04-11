@@ -14,7 +14,7 @@ class ApiGenerator extends BaseGenerator {
     await this.fs.copyTplAsync(
       this.templatePath('**/*.ejs'),
       this.destinationRoot(),
-      this.answers,
+      answers,
       {},
       {
         globOptions: { dot: true },

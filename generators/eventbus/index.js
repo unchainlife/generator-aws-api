@@ -9,12 +9,12 @@ class ApiGenerator extends BaseGenerator {
   }
 
   async execute() {
-    this.answers = await this._prompt();
+    let answers = await this._prompt();
 
     await this.fs.copyTplAsync(
       this.templatePath('**/*.ejs'),
       this.destinationRoot(),
-      this.answers,
+      answers,
       {},
       {
         globOptions: { dot: true },

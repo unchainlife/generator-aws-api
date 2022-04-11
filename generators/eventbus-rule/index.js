@@ -66,7 +66,7 @@ class ApiGenerator extends BaseGenerator {
     await this.fs.copyTplAsync(
       this.templatePath('**/*.*'),
       this.destinationRoot(),
-      this.answers,
+      answers,
       {},
       { globOptions: { dot: true, ignore } },
     );
