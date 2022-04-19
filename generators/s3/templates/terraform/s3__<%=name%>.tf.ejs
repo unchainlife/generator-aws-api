@@ -1,0 +1,66 @@
+<%
+  const toKebabCase = s => s.match(/[A-Z][a-z0-9]*/g).map(s => s.toLowerCase()).join('-');
+%>
+
+resource "aws_s3_bucket" "<%=name%>" {
+  bucket = "${local.prefix}--<%=name%>"
+}
+
+<% if (expiration > 0 || transition > 0) { %>
+# ------------------------------------------------------------------------------
+# Lifecycle Rules
+# ------------------------------------------------------------------------------
+
+resource "aws_s3_bucket_lifecycle_configuration" "<%=name%>" {
+  bucket = aws_s3_bucket.<%=name%>.id
+<% if (expiration > 0) { %>
+  rule {
+    id     = "rule-trash"
+    status = "Enabled"
+    filter {
+      prefix = "trash/"
+    }
+    expiration {
+      days = <%=expiration%>
+    }
+  }
+<% } %>
+<% if (transition > 0) { %>
+  rule {
+    id     = "rule-transition"
+    status = "Enabled"
+    transition {
+      days          = <%=transition%>
+      storage_class = "GLACIER"
+    }
+  }
+<% } %>
+}
+<% } %>
+
+resource "aws_s3_object" "<%=name%>--trash" {
+  bucket = aws_s3_bucket.<%=name%>.id
+  key    = "trash/"
+}
+
+# ------------------------------------------------------------------------------
+# Access Control List
+# ------------------------------------------------------------------------------
+
+resource "aws_s3_bucket_acl" "<%=name%>" {
+  bucket = aws_s3_bucket.<%=name%>.id
+  acl    = "private"
+}
+
+<% if (versioning==='yes') { %>
+# ------------------------------------------------------------------------------
+# Versioning
+# ------------------------------------------------------------------------------
+
+resource "aws_s3_bucket_versioning" "<%=name%>" {
+  bucket = aws_s3_bucket.<%=name%>.id
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+<% } %>

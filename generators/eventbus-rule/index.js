@@ -1,4 +1,4 @@
-const { BaseGenerator, processDestinationPath, pascalCase, eventBuses, required, languages, languageRuntime, languageIgnorePattern, vpcs, sourceName } = require('../../common');
+const { BaseGenerator, processDestinationPath, eventBuses, required, languages, languageRuntime, languageIgnorePattern, vpcs, sourceName } = require('../../common');
 
 class ApiGenerator extends BaseGenerator {
 
@@ -16,7 +16,7 @@ class ApiGenerator extends BaseGenerator {
       name: 'name',
       message: 'Rule',
       type: 'input',
-      validate: pascalCase,
+      validate: kebabCase,
     });
     this._input({
       name: 'description',

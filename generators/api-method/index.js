@@ -1,4 +1,4 @@
-const { BaseGenerator, pascalCase, vpcs, apis, apiResources, languages, languageRuntime, languageIgnorePattern } = require("../../common");
+const { BaseGenerator, kebabCase, vpcs, apis, apiResources, languages, languageRuntime, languageIgnorePattern } = require("../../common");
 
 class ApiGenerator extends BaseGenerator {
 

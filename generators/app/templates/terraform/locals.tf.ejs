@@ -2,5 +2,5 @@ locals {
     region      = "<%= region %>"
     project     = "<%= project %>"
     environment = terraform.workspace
-    prefix      = "${local.project}-${local.environment}"
+    prefix      = "${local.project}--${local.environment}"
 }

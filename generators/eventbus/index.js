@@ -1,11 +1,11 @@
-const { BaseGenerator, processDestinationPath, pascalCase, toKebabCase, kebabCase } = require('../../common');
+const { BaseGenerator, processDestinationPath, toKebabCase, kebabCase } = require('../../common');
 
 class ApiGenerator extends BaseGenerator {
 
   constructor(args, opts) {
     super(args, opts);
 
-    this._input({ name: 'name', type: 'input', validate: pascalCase });
+    this._input({ name: 'name', type: 'input', validate: kebabCase });
   }
 
   async execute() {
