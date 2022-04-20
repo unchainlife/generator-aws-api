@@ -1,5 +1,5 @@
 # ------------------------------------------------------------------------------
-# <%= `${api} - ${method} ${resource}` %>
+# <%=`${api} - ${method} ${resource}`%>
 # ------------------------------------------------------------------------------
 
 resource "aws_iam_role" "<%=`${api}_${resource}_${method}`%>-lambda" {
@@ -36,19 +36,19 @@ data "archive_file" "<%=`${api}_${resource}_${method}`%>" {
 
 resource "aws_lambda_function" "<%=`${api}_${resource}_${method}`%>-lambda" {
     function_name           = "${local.prefix}_<%=`${api}_${resource}_${method}`%>"
-    runtime                 = "<%= runtime %>"
+    runtime                 = "<%=runtime%>"
     handler                 = "index.handler"
     role                    = aws_iam_role.<%=`${api}_${resource}_${method}`%>-lambda.arn
     filename                = data.archive_file.<%=`${api}_${resource}_${method}`%>.output_path
     source_code_hash        = data.archive_file.<%=`${api}_${resource}_${method}`%>.output_base64sha256
     timeout                 = local.lambda_timeout
     memory_size             = 128
-    <% if (vpc === "(none)") { %>
+    <% if (vpc === "(none)") { -%>
     vpc_config {
         subnet_ids            = [ aws_vpc.<%=vpc%>.id ]
         security_group_ids    = [ aws_subnet.<%=vpc%>_A.id ]
     }
-    <% } %>
+    <% } -%>
     environment {
         variables = {
             PREFIX              = local.prefix

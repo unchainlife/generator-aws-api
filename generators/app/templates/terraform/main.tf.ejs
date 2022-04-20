@@ -1,15 +1,15 @@
 provider "aws" {
-  region            = "<%= region %>"
+  region            = "<%=region%>"
   profile           = "default"
 }
 
 terraform {
   backend "s3" {
     encrypt               = false
-    region                = "<%= region %>"
+    region                = "<%=region%>"
     bucket                = "foo-tf"
     dynamodb_table        = "terraform-lock"
     key                   = "terraform-state"
-    workspace_key_prefix  = "<%= project %>"
+    workspace_key_prefix  = "<%=project%>"
   }
 }
