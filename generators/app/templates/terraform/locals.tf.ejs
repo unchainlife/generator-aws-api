@@ -3,4 +3,8 @@ locals {
     project     = "<%= project %>"
     environment = terraform.workspace
     prefix      = "${local.project}--${local.environment}"
+
+    AccessControlAllowOrigin = "*"
+    local.AccessControlAllowHeaders = "*"
+    AccessControlAllowMethods = "*"
 }
