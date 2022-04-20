@@ -2,6 +2,12 @@ const fs = require('fs');
 const path = require('path');
 const Generator = require('yeoman-generator');
 
+const or = (a, b) => s => {
+	const ra = a(s);
+	if (ra === true) return true;
+	return b(s);
+}
+const nullable = s => s == '' || "Value must be empty";
 const pascalCase = s => /[A-Z][A-Za-z0-9]*/.test(s) || "Value must be PascalCase";
 const camelCase = s => /[a-z][A-Za-z0-9]*/.test(s) || "Value must be camelCase";
 const kebabCase = s => /[a-z][a-z0-9-]*/.test(s) || "Value must be kebab-case";
@@ -103,6 +109,8 @@ module.exports = {
 	sourceName,
 	apis,
 	apiResources,
+	or,
+	nullable,
 	pascalCase,
 	camelCase,
 	kebabCase,

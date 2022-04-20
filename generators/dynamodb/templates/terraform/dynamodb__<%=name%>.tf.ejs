@@ -1,0 +1,27 @@
+resource "aws_dynamodb_table" "<%=name%>" {
+  name           = "${local.prefix}--<%=name%>"
+  billing_mode   = "<%=billing_mode%>"
+<% if (billing_mode === 'PROVISIONED') { -%>
+  read_capacity  = <%=read_capacity%>
+  write_capacity = <%=write_capacity%>
+<% } -%>
+  hash_key       = "<%=pk%>"
+<% if (sk) { -%>
+  range_key      = "<%=sk%>"
+<% } -%>
+  attribute {
+    name = "<%=pk%>"
+    type = "S"
+  }
+<% if (sk) { -%>
+  attribute {
+    name = "<%=sk%>"
+    type = "S"
+  }
+<% } if (ttl) { -%>
+  ttl {
+    attribute_name = "<%=ttl%>"
+    enabled        = true
+  }
+<% } -%>
+}
