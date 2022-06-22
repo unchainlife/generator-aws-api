@@ -42,14 +42,22 @@ const languageIgnorePattern = language => Object
 	.filter(([lang, _]) => lang !== language)
 	.map(([_, opt]) => `**/*.${opt.extension}.ejs`);
 
-const vpcs = root => [
-	'',
+const vpcs = (root, strict) => [
+	...(strict ? [] : ['']),
 	...fs.readdirSync(path.join(root, 'terraform'))
 	     .map(f => f.match(new RegExp(`^vpc__([^_]+)\.tf$`)))
 	     .filter(exp => exp)
 	     .map(exp => exp[1])
 	];
 
+const subnets = (root, vpc) => [
+	'',
+	...fs.readdirSync(path.join(root, 'terraform'))
+			.map(f => f.match(new RegExp(`^vpc__${vpc}__([^_]+)\.tf$`)))
+			.filter(exp => exp)
+			.map(exp => exp[1])
+	];
+	
 const eventBuses = root => () => [
 	...fs.readdirSync(path.join(root, 'terraform'))
 			.map(f => f.match(new RegExp(`^eventbus__([^_]+)\.tf$`)))
@@ -105,6 +113,7 @@ class BaseGenerator extends Generator {
 module.exports = {
 	BaseGenerator,
 	vpcs,
+	subnets,
 	eventBuses,
 	required,
 	sourceName,

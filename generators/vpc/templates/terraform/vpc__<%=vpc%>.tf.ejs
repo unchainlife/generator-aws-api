@@ -1,0 +1,32 @@
+locals {
+    <%=vpc%>_availability_zones = [<%-availability_zones.map(x=>`"${x}"`).join(", ")%>]
+}
+
+resource "aws_vpc" "<%=vpc%>" {
+    cidr_block = "<%=cidr%>"
+
+    tags = {
+      Name = "${local.prefix}_vpc_<%=vpc%>"
+    }
+}
+
+resource "aws_internet_gateway" "<%=vpc%>" {
+    vpc_id = aws_vpc.<%=vpc%>.id
+
+    tags = {
+        Name = "${local.prefix}_<%=vpc%>"
+    }
+}
+
+resource "aws_route_table" "<%=vpc%>_public" {
+    vpc_id  = aws_vpc.<%=vpc%>.id
+
+    route {
+        cidr_block = "0.0.0.0/0"
+        gateway_id = aws_internet_gateway.<%=vpc%>.id
+    }
+
+    tags = {
+        Name = "${local.prefix}_<%=vpc%>_public"
+    }
+}
