@@ -27,6 +27,14 @@ data "archive_file" "<%=`${api}_${resource}_${method}`%>" {
     type        = "zip"
     source_dir  = "${path.module}/../api/<%=api%>/<%=resource%>/<%=method%>"
     output_path = "${path.module}/output/<%=`${api}_${resource}_${method}`%>.zip"
+    excludes    = [
+        <% if (language === 'python') { %>
+        ".pytest_cache",
+        "__pycache__",
+        "venv/bin",
+        "venv/lib64"
+        <% } %>
+    ]
 }
 
 resource "aws_lambda_function" "<%=`${api}_${resource}_${method}`%>-lambda" {

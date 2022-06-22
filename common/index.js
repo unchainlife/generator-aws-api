@@ -18,14 +18,14 @@ const sourceName = s => /([a-z]+)(\.[a-z]+)+/.test(s) || "Must be an app name co
 const toKebabCase = s => s.match(/[A-Z][a-z0-9]*/g).map(s => s.toLowerCase()).join('-');
 
 const _languages = {
-	// "python": {
-	// 	extension: "py",
-	// 	runtime: "python3.9",
-	// },
-	// "typescript": {
-	// 	extension: "ts",
-	// 	runtime: "nodejs14.x",
-	// },
+	"python": {
+		extension: "py",
+		runtime: "python3.9",
+	},
+	"typescript": {
+		extension: "ts",
+		runtime: "nodejs14.x",
+	},
 	"javascript": {
 		extension: "js",
 		runtime: "nodejs14.x",
@@ -35,6 +35,7 @@ const _languages = {
 const languages = () => Object.keys(_languages);
 
 const languageRuntime = language => _languages[language].runtime;
+const languageExtension = language => _languages[language].extension;
 
 const languageIgnorePattern = language => Object
 	.entries(_languages)

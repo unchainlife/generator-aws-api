@@ -1,4 +1,5 @@
-const { BaseGenerator, kebabCase, vpcs, apis, apiResources, languages, languageRuntime, languageIgnorePattern } = require("../../common");
+const path = require('path');
+const { BaseGenerator, kebabCase, vpcs, apis, apiResources, languages, languageRuntime, languageIgnorePattern, languageExtension } = require("../../common");
 
 class ApiGenerator extends BaseGenerator {
 
@@ -15,15 +16,21 @@ class ApiGenerator extends BaseGenerator {
   async create_api() {
     let answers = await this._prompt();
 
-    const ignore = languageIgnorePattern(answers.language);
     answers.runtime = languageRuntime(answers.language);
 
     await this.fs.copyTplAsync(
-      this.templatePath('**/*.*'),
+      this.templatePath('all/**/*.*'),
       this.destinationRoot(),
       answers,
       {},
-      { globOptions: { dot: true, ignore } },
+      { globOptions: { dot: true } },
+    )
+    await this.fs.copyTplAsync(
+      this.templatePath(`${answers.language}/**/*.*`),
+      this.destinationRoot(),
+      answers,
+      {},
+      { globOptions: { dot: true } },
     )
   }
 }
