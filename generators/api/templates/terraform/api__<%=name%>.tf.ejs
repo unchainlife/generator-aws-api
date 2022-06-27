@@ -1,5 +1,5 @@
 resource "aws_api_gateway_rest_api" "<%=name%>" {
-    name = "<%=name%>"
+    name = "${local.prefix}--<%=name%>"
     description = "RESTful API"
 }
 
