@@ -19,21 +19,21 @@ resource "aws_iam_role" "<%=`${api}_${resource}_${method}`%>-lambda" {
 }
 
 resource "aws_iam_role_policy_attachment" "<%=`${api}_${resource}_${method}`%>-lambda-log" {
-    policy_arn = aws_iam_policy.lambda-logs.arn
     role       = aws_iam_role.<%=`${api}_${resource}_${method}`%>-lambda.name
+    policy_arn = aws_iam_policy.lambda-logs.arn
 }
 
 data "archive_file" "<%=`${api}_${resource}_${method}`%>" {
     type        = "zip"
-    source_dir  = "${path.module}/../api/<%=api%>/<%=resource%>/<%=method%>"
+    source_dir  = "${path.module}/../api/<%=api%>/<%=resource%>/<%=method%>/out"
     output_path = "${path.module}/output/<%=`${api}_${resource}_${method}`%>.zip"
     excludes    = [
-        <% if (language === 'python') { %>
+        <% if (language === 'python') { -%>
         ".pytest_cache",
         "__pycache__",
         "venv/bin",
         "venv/lib64"
-        <% } %>
+        <% } -%>
     ]
 }
 

@@ -25,3 +25,24 @@ resource "aws_dynamodb_table" "<%=name%>" {
   }
 <% } -%>
 }
+
+resource "aws_iam_policy" "<%=name%>-read" {
+  name = "${local.prefix}-<%=name%>-read"
+  path = "/"
+  description = "Query the <%=name%> table"
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "dynamodb:Query",
+          "dynamodb:Scan"
+        ],
+        Resource = [
+          aws_dynamodb_table.<%=name%>.arn
+        ]
+      }
+    ]
+  })
+}
