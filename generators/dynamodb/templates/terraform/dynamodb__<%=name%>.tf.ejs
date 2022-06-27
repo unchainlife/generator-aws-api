@@ -26,8 +26,8 @@ resource "aws_dynamodb_table" "<%=name%>" {
 <% } -%>
 }
 
-resource "aws_iam_policy" "<%=name%>-read" {
-  name = "${local.prefix}-<%=name%>-read"
+resource "aws_iam_policy" "<%=name%>__dynamodb-read" {
+  name = "${local.prefix}--<%=name%>--dynamodb-read"
   path = "/"
   description = "Query the <%=name%> table"
   policy = jsonencode({
@@ -37,7 +37,7 @@ resource "aws_iam_policy" "<%=name%>-read" {
         Effect = "Allow"
         Action = [
           "dynamodb:Query",
-          "dynamodb:Scan"
+          "dynamodb:Scan",
         ],
         Resource = [
           aws_dynamodb_table.<%=name%>.arn

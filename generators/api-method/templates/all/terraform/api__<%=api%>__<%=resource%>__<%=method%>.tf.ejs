@@ -1,9 +1,14 @@
 # ------------------------------------------------------------------------------
 # <%=`${api} - ${method} ${resource}`%>
 # ------------------------------------------------------------------------------
+<%
+    const fullname      = `${api}__${resource}__${method}`;
+    const function_name = `api--${api}--${resource}--${method}`;
+    const rolename      = `${fullname}__role`;
+-%>
 
-resource "aws_iam_role" "<%=`${api}_${resource}_${method}`%>-lambda" {
-    name               = "${local.prefix}--<%=`${api}--${resource}--${method}`%>"
+resource "aws_iam_role" "<%=rolename%>" {
+    name               = "${local.prefix}--<%=function_name%>"
     assume_role_policy = jsonencode({
         Version = "2012-10-17",
         Statement = [
@@ -18,15 +23,15 @@ resource "aws_iam_role" "<%=`${api}_${resource}_${method}`%>-lambda" {
     })
 }
 
-resource "aws_iam_role_policy_attachment" "<%=`${api}_${resource}_${method}`%>-lambda-log" {
-    role       = aws_iam_role.<%=`${api}_${resource}_${method}`%>-lambda.name
+resource "aws_iam_role_policy_attachment" "<%=`${fullname}__lambda-log`%>" {
+    role       = aws_iam_role.<%=rolename%>.name
     policy_arn = aws_iam_policy.lambda-logs.arn
 }
 
-data "archive_file" "<%=`${api}_${resource}_${method}`%>" {
+data "archive_file" "<%=fullname%>" {
     type        = "zip"
     source_dir  = "${path.module}/../api/<%=api%>/<%=resource%>/<%=method%>/out"
-    output_path = "${path.module}/output/<%=`${api}_${resource}_${method}`%>.zip"
+    output_path = "${path.module}/output/<%=fullname%>.zip"
     excludes    = [
         <% if (language === 'python') { -%>
         ".pytest_cache",
@@ -37,13 +42,13 @@ data "archive_file" "<%=`${api}_${resource}_${method}`%>" {
     ]
 }
 
-resource "aws_lambda_function" "<%=`${api}_${resource}_${method}`%>-lambda" {
-    function_name    = "${local.prefix}_<%=`${api}_${resource}_${method}`%>"
+resource "aws_lambda_function" "<%=fullname%>" {
+    function_name    = "${local.prefix}__<%=function_name%>"
     runtime          = "<%=runtime%>"
     handler          = "index.handler"
-    role             = aws_iam_role.<%=`${api}_${resource}_${method}`%>-lambda.arn
-    filename         = data.archive_file.<%=`${api}_${resource}_${method}`%>.output_path
-    source_code_hash = data.archive_file.<%=`${api}_${resource}_${method}`%>.output_base64sha256
+    role             = aws_iam_role.<%=rolename%>.arn
+    filename         = data.archive_file.<%=fullname%>.output_path
+    source_code_hash = data.archive_file.<%=fullname%>.output_base64sha256
     timeout          = local.lambda_timeout
     memory_size      = 128
     <% if (vpc === "(none)") { -%>
@@ -59,12 +64,12 @@ resource "aws_lambda_function" "<%=`${api}_${resource}_${method}`%>-lambda" {
     }
 }
 
-resource "aws_cloudwatch_log_group" "<%=`${api}_${resource}_${method}`%>-lambda-log" {
-    name              = "/aws/lambda/${local.prefix}_<%=`${api}_${resource}_${method}`%>"
+resource "aws_cloudwatch_log_group" "<%=`${fullname}__lambda-log`%>" {
+    name              = "/aws/lambda/${local.prefix}_<%=`${fullname}`%>"
     retention_in_days = local.log_retention_in_days
 }
 
-resource "aws_api_gateway_method" "<%=`${api}_${resource}_${method}`%>" {
+resource "aws_api_gateway_method" "<%=fullname%>" {
     rest_api_id   = aws_api_gateway_rest_api.<%=api%>.id
     resource_id   = aws_api_gateway_resource.<%=`${api}_${resource}`%>.id
     http_method   = "<%=method%>"
@@ -75,13 +80,17 @@ resource "aws_api_gateway_method" "<%=`${api}_${resource}_${method}`%>" {
     }
 }
 
-resource "aws_api_gateway_integration" "<%=`${api}_${resource}_${method}`%>" {
+resource "aws_api_gateway_integration" "<%=fullname%>" {
     rest_api_id             = aws_api_gateway_rest_api.<%=api%>.id
+    <% if (resource) { -%>
     resource_id             = aws_api_gateway_resource.<%=`${api}_${resource}`%>.id
-    http_method             = aws_api_gateway_method.<%=`${api}_${resource}_${method}`%>.http_method
+    <% } else { -%>
+    resource_id             = aws_api_gateway_rest_api.<%=api%>.root_resource_id
+    <% } -%>
+    http_method             = aws_api_gateway_method.<%=fullname%>.http_method
     integration_http_method = "POST"
     type                    = "AWS_PROXY"
-    uri                     = aws_lambda_function.<%=`${api}_${resource}_${method}`%>-lambda.invoke_arn
+    uri                     = aws_lambda_function.<%=fullname%>.invoke_arn
 
     passthrough_behavior    = "WHEN_NO_TEMPLATES"
     content_handling        = "CONVERT_TO_TEXT"
@@ -93,18 +102,18 @@ resource "aws_api_gateway_integration" "<%=`${api}_${resource}_${method}`%>" {
     }
 }
 
-resource "aws_lambda_permission" "<%=`${api}_${resource}_${method}`%>-lambda" {
+resource "aws_lambda_permission" "<%=`${fullname}__lambda-permission`%>" {
     statement_id  = "AllowExecutionFromAPIGateway"
     action        = "lambda:InvokeFunction"
-    function_name = aws_lambda_function.<%=`${api}_${resource}_${method}`%>-lambda.function_name
+    function_name = aws_lambda_function.<%=fullname%>.function_name
     principal     = "apigateway.amazonaws.com"
-    source_arn    = "arn:aws:execute-api:${local.region}:${var.account}:${aws_api_gateway_rest_api.<%=api%>.id}/*/${aws_api_gateway_method.<%=`${api}_${resource}_${method}`%>.http_method}${aws_api_gateway_resource.<%=`${api}_${resource}`%>.path}"
+    source_arn    = "arn:aws:execute-api:${local.region}:${var.account}:${aws_api_gateway_rest_api.<%=api%>.id}/*/${aws_api_gateway_method.<%=fullname%>.http_method}${aws_api_gateway_resource.<%=`${api}_${resource}`%>.path}"
 }
 
-resource "aws_api_gateway_method_response" "<%=`${api}_${resource}_${method}`%>-200" {
+resource "aws_api_gateway_method_response" "<%=`${fullname}__200`%>" {
     rest_api_id = aws_api_gateway_rest_api.<%=api%>.id
     resource_id = aws_api_gateway_resource.<%=`${api}_${resource}`%>.id
-    http_method = aws_api_gateway_method.<%=`${api}_${resource}_${method}`%>.http_method
+    http_method = aws_api_gateway_method.<%=fullname%>.http_method
     status_code = "200"
 
     response_parameters = {
@@ -118,11 +127,11 @@ resource "aws_api_gateway_method_response" "<%=`${api}_${resource}_${method}`%>-
     }
 }
 
-resource "aws_api_gateway_integration_response" "<%=`${api}_${resource}_${method}`%>-200" {
+resource "aws_api_gateway_integration_response" "<%=`${fullname}__200`%>" {
     rest_api_id = aws_api_gateway_rest_api.<%=api%>.id
     resource_id = aws_api_gateway_resource.<%=`${api}_${resource}`%>.id
-    http_method = aws_api_gateway_method.<%=`${api}_${resource}_${method}`%>.http_method
-    status_code = aws_api_gateway_method_response.<%=`${api}_${resource}_${method}`%>-200.status_code
+    http_method = aws_api_gateway_method.<%=fullname%>.http_method
+    status_code = aws_api_gateway_method_response.<%=`${fullname}__200`%>.status_code
 
     response_parameters = {
         "method.response.header.Access-Control-Allow-Origin"  = "'${local.AccessControlAllowOrigin}'"
