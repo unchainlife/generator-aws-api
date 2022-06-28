@@ -39,12 +39,12 @@ resource "aws_lambda_function" "<%=fullname%>" {
     source_code_hash        = data.archive_file.<%=fullname%>.output_base64sha256
     timeout                 = local.lambda_timeout
     memory_size             = 128
-    <% if (vpc === "(none)") { -%>
+<% if (vpc === "(none)") { -%>
     vpc_config {
         subnet_ids            = [ aws_vpc.<%=vpc%>.id ]
         security_group_ids    = [ aws_subnet.<%=vpc%>_A.id ]
     }
-    <% } -%>
+<% } -%>
     environment {
         variables = {
             PREFIX              = local.prefix

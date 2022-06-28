@@ -79,6 +79,10 @@ const apiResources = root => ({ api }) => [
 	     .filter(exp => exp)
 	     .map(exp => exp[1])
 ];
+const layers = root => ({ }) => fs.readdirSync(path.join(root, 'terraform'))
+	.map(f => f.match(new RegExp(`^layer__([^_]+)\.tf$`)))
+	.filter(exp => exp)
+	.map(exp => exp[1]);
 
 class BaseGenerator extends Generator {
 	constructor(args, opts) {
@@ -87,26 +91,30 @@ class BaseGenerator extends Generator {
 	}
 
 	_input({ name, dataType = String, ...prompt }) {
-    this.argument(name, { type: dataType, required: false });
-    this._inputs[name] = prompt;
-  }
+		this.argument(name, { type: dataType, required: false });
+		this._inputs[name] = prompt;
+	}
 
 	async _prompt() {
-		let prompts = Object.entries(this._inputs)
-			.map(([name, prompt]) => [name, prompt, this.options && this.options[name]])
-      .filter(([name, { type, choices, validate }, value]) =>
-        typeof value === 'undefined' ||
-        validate && validate(value) !== true ||
-        type === 'list' && !(typeof choices === 'function' ? choices(this.options) : choices).includes(value)
-      )
-      .map(([name, prompt]) => ({ name, ...prompt }));
+		const convert = ({ type }, v) => type === 'checkbox'? v.split(',') : v;
+		const options = Object.entries(this._inputs)
+							.map(([k, v]) => [k, convert(v, this.options[k])])
+							.reduce((s, [k, v]) => ({ ...s, [k]: v }), {});
+		const prompts = Object.entries(this._inputs)
+							.map(([name, prompt]) => [name, prompt, options[name]])
+							.filter(([name, { type, choices, validate }, value]) =>
+								typeof value === 'undefined' ||
+								validate && validate(value) !== true ||
+								type === 'list' && !(typeof choices === 'function' ? choices(this.options) : choices).includes(value)
+							)
+							.map(([name, prompt]) => ({ name, ...prompt }));
 
-    let answers = await this.prompt(prompts) || {};
+		let answers = await this.prompt(prompts) || {};
 
-    return {
-      ...this.options,
-      ...answers
-    };
+		return {
+		...options,
+		...answers
+		};
 	}
 }
 
@@ -119,6 +127,7 @@ module.exports = {
 	sourceName,
 	apis,
 	apiResources,
+	layers,
 	or,
 	nullable,
 	pascalCase,
