@@ -3,13 +3,15 @@ export file="${BASH_SOURCE##*/}"
 
 function <%=project%>() {
 
-  echo
-  echo "Environment: $env"
-  echo "Directory: $root"
+  pushd $root
 
   command=$1
   args=${@:2}
   env=${ENV:-dev}
+
+  echo
+  echo "Environment: $env"
+  echo "Directory: $root"
 
   case $command in
     "build")
@@ -17,37 +19,43 @@ function <%=project%>() {
     ;;
 
     "validate")
-    terraform -chdir=$root/terraform validate $args
+    cd $root/terraform
+    terraform validate $args
     ;;
 
     "fmt")
-    terraform -chdir=$root/terraform fmt $args
+    cd $root/terraform
+    terraform fmt $args
     ;;
 
     "init")
-    terraform -chdir=$root/terraform workspace select $env || terraform workspace new $env
-    terraform -chdir=$root/terraform init $args
+    cd $root/terraform
+    terraform workspace select $env || terraform workspace new $env
+    terraform init $args
     ;;
 
     "plan")
-    terraform -chdir=$root/terraform workspace select $env || terraform workspace new $env
-    terraform -chdir=$root/terraform init
-    terraform -chdir=$root/terraform plan -var-file=./etc/dev.tfvars -out=./tfplan $args
+    cd $root/terraform
+    terraform workspace select $env || terraform workspace new $env
+    terraform init
+    terraform plan -var-file=./etc/dev.tfvars -out=./tfplan $args
     ;;
 
     "apply")
-    terraform -chdir=$root/terraform workspace select $env || terraform workspace new $env
-    terraform -chdir=$root/terraform init
-    terraform -chdir=$root/terraform apply $args ./tfplan
+    cd $root/terraform
+    terraform workspace select $env || terraform workspace new $env
+    terraform init
+    terraform apply $args ./tfplan
     ;;
 
     "destroy")
-    terraform -chdir=$root/terraform workspace select $env || terraform workspace new $env
-    terraform -chdir=$root/terraform init
-    terraform -chdir=$root/terraform destroy -var-file=./etc/dev.tfvars $args
+    cd $root/terraform
+    terraform workspace select $env || terraform workspace new $env
+    terraform init
+    terraform destroy -var-file=./etc/dev.tfvars $args
     if [ $env != "default" ]; then
-      terraform -chdir=$root/terraform workspace select default
-      terraform -chdir=$root/terraform workspace delete $env
+      terraform workspace select default
+      terraform workspace delete $env
     fi
     ;;
 
@@ -75,6 +83,8 @@ function <%=project%>() {
     echo
     ;;
   esac
+
+  popd
 }
 
-echo "Usage: <%=project%>"
+echo "Usage: ods-serverless"

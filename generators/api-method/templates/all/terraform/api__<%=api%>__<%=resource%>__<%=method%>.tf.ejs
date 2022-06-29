@@ -33,12 +33,12 @@ data "archive_file" "<%=fullname%>" {
     source_dir  = "${path.module}/../api/<%=api%>/<%=resource%>/<%=method%>/out"
     output_path = "${path.module}/output/<%=fullname%>.zip"
     excludes    = [
-        <% if (language === 'python') { -%>
+<% if (language === 'python') { -%>
         ".pytest_cache",
         "__pycache__",
         "venv/bin",
         "venv/lib64"
-        <% } -%>
+<% } -%>
     ]
 }
 
@@ -51,17 +51,22 @@ resource "aws_lambda_function" "<%=fullname%>" {
     source_code_hash = data.archive_file.<%=fullname%>.output_base64sha256
     timeout          = local.lambda_timeout
     memory_size      = 128
-    <% if (vpc === "(none)") { -%>
+<% if (vpc === "(none)") { -%>
     vpc_config {
         subnet_ids         = [ aws_vpc.<%=vpc%>.id ]
         security_group_ids = [ aws_subnet.<%=vpc%>_A.id ]
     }
-    <% } -%>
+<% } -%>
     environment {
         variables = {
             PREFIX = local.prefix
         }
     }
+<% if (layers && layers.length) { -%>
+    layers = [
+        <%- layers.map(layer => `aws_lambda_layer_version.${layer}.arn`).join(',\n\t\t') %>
+    ]
+<% } -%>
 }
 
 resource "aws_cloudwatch_log_group" "<%=`${fullname}__lambda-log`%>" {
@@ -82,11 +87,11 @@ resource "aws_api_gateway_method" "<%=fullname%>" {
 
 resource "aws_api_gateway_integration" "<%=fullname%>" {
     rest_api_id             = aws_api_gateway_rest_api.<%=api%>.id
-    <% if (resource) { -%>
+<% if (resource) { -%>
     resource_id             = aws_api_gateway_resource.<%=`${api}_${resource}`%>.id
-    <% } else { -%>
+<% } else { -%>
     resource_id             = aws_api_gateway_rest_api.<%=api%>.root_resource_id
-    <% } -%>
+<% } -%>
     http_method             = aws_api_gateway_method.<%=fullname%>.http_method
     integration_http_method = "POST"
     type                    = "AWS_PROXY"

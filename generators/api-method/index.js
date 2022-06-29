@@ -1,5 +1,5 @@
 const path = require('path');
-const { BaseGenerator, kebabCase, vpcs, apis, apiResources, languages, languageRuntime, languageIgnorePattern, languageExtension } = require("../../common");
+const { BaseGenerator, kebabCase, vpcs, apis, apiResources, languages, languageRuntime, layers } = require("../../common");
 
 class ApiGenerator extends BaseGenerator {
 
@@ -11,12 +11,13 @@ class ApiGenerator extends BaseGenerator {
     this._input({ name: 'resource', type: 'list', choices: apiResources(this.destinationRoot()) });
     this._input({ name: 'method', type: 'list', choices: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'], default: 'GET' });
     this._input({ name: 'language', type: 'list', choices: languages(), default: 'javascript' });
+    this._input({ name: 'layers', type: 'checkbox', choices: layers(this.destinationRoot()) });
   }
 
   async create_api() {
     let answers = await this._prompt();
 
-    answers.runtime = languageRuntime(answers.language);
+    answers['runtime'] = languageRuntime(answers['language']);
 
     await this.fs.copyTplAsync(
       this.templatePath('all/**/*.*'),
@@ -26,7 +27,7 @@ class ApiGenerator extends BaseGenerator {
       { globOptions: { dot: true } },
     )
     await this.fs.copyTplAsync(
-      this.templatePath(`${answers.language}/**/*.*`),
+      this.templatePath(`${answers['language']}/**/*.*`),
       this.destinationRoot(),
       answers,
       {},

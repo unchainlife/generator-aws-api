@@ -1,0 +1,20 @@
+data "archive_file" "layer_<%=name%>" {
+    type        = "zip"
+    source_dir  = "${path.module}/../layer/<%=name%>/out"
+    output_path = "${path.module}/../output/layer_<%=name%>.zip"
+    excludes    = [
+<% if (language === 'python') { -%>
+        ".pytest_cache",
+        "__pycache__",
+        "venv/bin",
+        "venv/lib64"
+<% } -%>
+    ]
+}
+
+resource "aws_lambda_layer_version" "<%=name%>" {
+    layer_name          = "${local.prefix}--<%=name%>"
+    filename            = data.archive_file.layer_<%=name%>.output_path
+    source_code_hash    = data.archive_file.layer_<%=name%>.output_base64sha256
+    compatible_runtimes = ["<%=runtime%>"]
+}
