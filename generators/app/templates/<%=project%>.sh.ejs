@@ -1,7 +1,7 @@
 export root=$(cd $(dirname ${BASH_SOURCE[0]:-$0}) && pwd)
 export file="${BASH_SOURCE##*/}"
 
-function <%=name%>() {
+function <%=project%>() {
 
   pushd $root
 
@@ -61,7 +61,7 @@ function <%=name%>() {
 
     *)
     echo
-    echo "<%=name%>> <command> [options]"
+    echo "<%=project%> <command> [options]"
     echo
     echo "This helper script calls terraform, enforcing some conventions:"
     echo "  1. work from root directory"

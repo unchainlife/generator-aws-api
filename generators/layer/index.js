@@ -25,7 +25,7 @@ class LayerGenerator extends BaseGenerator {
       }
     );
     await this.fs.copyTplAsync(
-      this.templatePath(`${answers['language']}/**/*.ejs`),
+      this.templatePath(`${answers['language']}/**/*`),
       this.destinationRoot(),
       answers,
       {},
