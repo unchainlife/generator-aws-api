@@ -96,7 +96,7 @@ class BaseGenerator extends Generator {
 	}
 
 	async _prompt() {
-		const convert = ({ type }, v) => type === 'checkbox'? v.split(',') : v;
+		const convert = ({ type }, v) => v && (type === 'checkbox'? v.split(',') : v);
 		const options = Object.entries(this._inputs)
 							.map(([k, v]) => [k, convert(v, this.options[k])])
 							.reduce((s, [k, v]) => ({ ...s, [k]: v }), {});
