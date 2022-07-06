@@ -1,7 +1,7 @@
 const path = require('path');
 const { BaseGenerator, kebabCase, vpcs, apis, apiResources, languages, languageRuntime, layers } = require("../../common");
 
-class ApiGenerator extends BaseGenerator {
+class ApiMethodGenerator extends BaseGenerator {
 
   constructor(args, opts) {
     super(args, opts);
@@ -10,7 +10,7 @@ class ApiGenerator extends BaseGenerator {
     this._input({ name: 'api', type: 'list', choices: apis(this.destinationRoot()) });
     this._input({ name: 'resource', type: 'list', choices: apiResources(this.destinationRoot()) });
     this._input({ name: 'method', type: 'list', choices: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'], default: 'GET' });
-    this._input({ name: 'language', type: 'list', choices: languages(), default: 'javascript' });
+    this._input({ name: 'language', type: 'list', choices: languages(), store: true });
     this._input({ name: 'layers', type: 'checkbox', choices: layers(this.destinationRoot()) });
   }
 
@@ -36,4 +36,4 @@ class ApiGenerator extends BaseGenerator {
   }
 }
 
-module.exports = ApiGenerator;
+module.exports = ApiMethodGenerator;

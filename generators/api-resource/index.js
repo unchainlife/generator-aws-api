@@ -1,6 +1,6 @@
 const { BaseGenerator, kebabCase, apis, apiResources, toKebabCase } = require("../../common");
 
-class ApiGenerator extends BaseGenerator {
+class ApiResourceGenerator extends BaseGenerator {
 
   constructor(args, opts) {
     super(args, opts);
@@ -25,4 +25,4 @@ class ApiGenerator extends BaseGenerator {
   }
 }
 
-module.exports = ApiGenerator;
+module.exports = ApiResourceGenerator;

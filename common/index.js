@@ -84,6 +84,8 @@ const layers = root => ({ }) => fs.readdirSync(path.join(root, 'terraform'))
 	.filter(exp => exp)
 	.map(exp => exp[1]);
 
+const resolve = (v, ...args) => typeof(v) === 'function' ? v(...args) : v;
+
 class BaseGenerator extends Generator {
 	constructor(args, opts) {
 		super(args, opts);
@@ -96,25 +98,32 @@ class BaseGenerator extends Generator {
 	}
 
 	async _prompt() {
-		const convert = ({ type }, v) => v && (type === 'checkbox'? v.split(',') : v);
-		const options = Object.entries(this._inputs)
-							.map(([k, v]) => [k, convert(v, this.options[k])])
-							.reduce((s, [k, v]) => ({ ...s, [k]: v }), {});
-		const prompts = Object.entries(this._inputs)
-							.map(([name, prompt]) => [name, prompt, options[name]])
-							.filter(([name, { type, choices, validate }, value]) =>
-								typeof value === 'undefined' ||
-								validate && validate(value) !== true ||
-								type === 'list' && !(typeof choices === 'function' ? choices(this.options) : choices).includes(value)
-							)
-							.map(([name, prompt]) => ({ name, ...prompt }));
+		const split_checkbox_into_array = ({ type }, v) => v && (type === 'checkbox'? v.split(',') : v);
+		const cli_arguments = Object.entries(this._inputs)
+			.map(([k, v]) => [k, split_checkbox_into_array(v, this.options[k])])
+			.reduce((s, [k, v]) => ({ ...s, [k]: v }), {});
+		const prompts_for_missing_cli_args = Object.entries(this._inputs)
+			.map(([name, prompt]) => [name, prompt, cli_arguments[name]])
+			.filter(([name, { type, choices, validate }, value]) =>
+				typeof value === 'undefined' ||
+				validate && validate(value) !== true ||
+				type === 'list' && !resolve(choices, this.options).includes(value)
+			)
+			.map(([name, { store, default: d, ...prompt }]) => ({ name, default: store ? this.config.get(name) || d : d, ...prompt }));
 
-		let answers = await this.prompt(prompts) || {};
+		let answers = await this.prompt(prompts_for_missing_cli_args) || {};
 
-		return {
-		...options,
-		...answers
+		const results = {
+			...cli_arguments,
+			...answers
 		};
+
+		const inputs_to_store = Object.entries(this._inputs).filter(([name, { store }]) => !!resolve(store, results)).map(([name]) => name);
+		for (const name of inputs_to_store) {
+			this.config.set(name, results[name]);
+		}
+		this.config.save();
+		return results;
 	}
 }
 

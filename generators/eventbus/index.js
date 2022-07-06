@@ -1,6 +1,6 @@
 const { BaseGenerator, processDestinationPath, toKebabCase, kebabCase } = require('../../common');
 
-class ApiGenerator extends BaseGenerator {
+class EventBusGenerator extends BaseGenerator {
 
   constructor(args, opts) {
     super(args, opts);
@@ -23,4 +23,4 @@ class ApiGenerator extends BaseGenerator {
   }
 }
 
-module.exports = ApiGenerator;
+module.exports = EventBusGenerator;

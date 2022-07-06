@@ -1,6 +1,6 @@
 const { BaseGenerator, processDestinationPath, eventBuses, required, languages, languageRuntime, languageIgnorePattern, vpcs, sourceName } = require('../../common');
 
-class ApiGenerator extends BaseGenerator {
+class EventBusRuleGenerator extends BaseGenerator {
 
   constructor(args, opts) {
     super(args, opts);
@@ -54,6 +54,7 @@ class ApiGenerator extends BaseGenerator {
       type: 'list',
       choices: languages(),
       default: 'javascript',
+      store: true
     });
   }
 
@@ -73,4 +74,4 @@ class ApiGenerator extends BaseGenerator {
   }
 }
 
-module.exports = ApiGenerator;
+module.exports = EventBusRuleGenerator;
