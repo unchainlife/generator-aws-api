@@ -1,65 +1,12 @@
 export root=$(cd $(dirname ${BASH_SOURCE[0]:-$0}) && pwd)
+
+source $root/scripts/aws.sh
+source $root/scripts/terraform.sh
+source $root/scripts/code.sh
+
 export file="${BASH_SOURCE##*/}"
 
-function <%=project%>() {
-
-  pushd $root
-
-  command=$1
-  args=${@:2}
-  env=${ENV:-dev}
-
-  echo
-  echo "Environment: $env"
-  echo "Directory: $root"
-
-  case $command in
-    "build")
-    find $root -name build.sh | xargs -I % sh -c 'cd $(dirname %) && ./build.sh'
-    ;;
-
-    "validate")
-    cd $root/terraform
-    terraform validate $args
-    ;;
-
-    "fmt")
-    cd $root/terraform
-    terraform fmt $args
-    ;;
-
-    "init")
-    cd $root/terraform
-    terraform workspace select $env || terraform workspace new $env
-    terraform init $args
-    ;;
-
-    "plan")
-    cd $root/terraform
-    terraform workspace select $env || terraform workspace new $env
-    terraform init
-    terraform plan -var-file=./etc/dev.tfvars -out=./tfplan $args
-    ;;
-
-    "apply")
-    cd $root/terraform
-    terraform workspace select $env || terraform workspace new $env
-    terraform init
-    terraform apply $args ./tfplan
-    ;;
-
-    "destroy")
-    cd $root/terraform
-    terraform workspace select $env || terraform workspace new $env
-    terraform init
-    terraform destroy -var-file=./etc/dev.tfvars $args
-    if [ $env != "default" ]; then
-      terraform workspace select default
-      terraform workspace delete $env
-    fi
-    ;;
-
-    *)
+function _show_help() {
     echo
     echo "<%=project%> <command> [options]"
     echo
@@ -70,21 +17,35 @@ function <%=project%>() {
     echo
     echo "commands:"
     echo "  help      - this help screen"
-    echo "  build     - calls all the build.sh scripts"
-    echo "  validate  - calls 'terraform validate'"
-    echo "  fmt       - calls 'terraform fmt'"
-    echo "  init      - calls 'terraform init'"
-    echo "  plan      - calls 'terraform plan'"
-    echo "  apply     - calls 'terraform apply'"
-    echo "  destroy   - calls 'terraform destroy'"
+    echo "  code      - calls the code/build routines"
+    echo "  aws       - aws commands"
+    echo "  terraform - terraform commands"
     echo
     echo "environment variables:"
     echo "  ENV       - terraform workspace (default: 'dev')"
     echo
-    ;;
-  esac
-
-  popd
 }
 
-echo "Usage: ods-serverless"
+function <%=project%>() {
+
+  command=$1
+  args=(${@:2})
+
+  echo
+  echo "Directory: $root"
+  echo
+
+  current=$(pwd)
+  cd $root
+
+  case $command in
+    "aws") _aws $args ;;
+    "code") _code $args ;;
+    "terraform") _terraform $args ;;
+    *) _show_help $args ;;
+  esac
+
+  cd $current
+}
+
+echo "Usage: <%=project%>"

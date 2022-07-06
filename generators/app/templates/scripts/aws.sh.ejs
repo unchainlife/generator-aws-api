@@ -1,0 +1,182 @@
+#!/bin/bash
+
+function _aws_help() {
+    local verb=$1
+    local args=(${@:2})
+
+    echo
+    echo "<%=project%> aws <command> [options]"
+    echo
+    echo "commands:"
+    echo "  help                        - this help screen"
+    echo "  login <alias> [<mfa-token>] - "
+    echo "  check-creds                 - "
+    echo "  reset-creds                 - "
+    echo
+}
+
+function _aws() {
+    local verb=$1
+    local args=(${@:2})
+
+    case $verb in
+        "login") _aws_login $args ;;
+        "check-creds") _aws_check_creds $args ;;
+        "reset-creds") _aws_reset_creds $args ;;
+        *) _aws_help $args ;;
+    esac
+}
+
+function _aws_login() {
+    local account_alias=$1
+    local cli_aliases=$(_get_cli_aliases)
+
+    if [[ -z ${account_alias} ]]; then
+        echo "Account alias is required." >&2
+        echo "Please specify one of: $cli_aliases." >&2
+        return 1
+    fi
+
+    local aws_account_id=$(_get_account_id $account_alias)
+    if [[ -z ${aws_account_id} ]]; then
+        echo "Unknown account alias: ${account_alias}." >&2
+        echo "Please specify one of: $cli_aliases." >&2
+        return 1
+    fi
+
+    local token_code=$2
+    export account_name="$account_alias"
+
+    if [[ -z $token_code ]]; then
+        echo "MFA token code:"
+        read -r -s token_code
+    fi
+
+    # Check for valid AWS credentials
+    local caller_identity_json="$(aws sts get-caller-identity)"
+
+    if ! [ "${?}" -eq 0 ]; then
+        echo "Error looking up your aws creds.  Have you set them in your credential file?" >&2
+
+        return 1
+    fi
+
+    local current_aws_account_id="$(echo $caller_identity_json | jq -r .Account)"
+    local current_principal_arn="$(echo $caller_identity_json | jq -r .Arn)"
+    # local current_principal_user_id="$(echo $caller_identity_json | jq -r .UserId)"
+    local current_user="$(echo ${current_principal_arn} | cut -d'/' -f 2)"
+
+    local mfa_serial="arn:aws:iam::${current_aws_account_id}:mfa/${current_user}"
+    local role=$(_get_account_role_to_assume $account_alias)
+
+    local role_arn="arn:aws:iam::${aws_account_id}:role/${role}"
+    local session_name="${aws_account_id}-${current_user}"
+    local session_duration=$(_get_session_duration $account_alias)
+
+    local session_token_json="$(aws sts assume-role \
+        --role-arn "${role_arn}" \
+        --role-session-name "${session_name}" \
+        --serial-number "${mfa_serial}" \
+        --duration-seconds $session_duration \
+        --token-code "${token_code}" \
+        --query Credentials; )"
+
+    # Set the environment credentials as given by STS
+    export AWS_ACCESS_KEY_ID="$(echo $session_token_json | jq -r .AccessKeyId)"
+    export AWS_SECRET_ACCESS_KEY="$(echo $session_token_json | jq -r .SecretAccessKey)"
+    export AWS_SESSION_TOKEN="$(echo $session_token_json | jq -r .SessionToken)"
+    export AWS_SESSION_EXPIRY="$(echo $session_token_json | jq -r .Expiration)"
+
+    if [[ \
+        -n "${AWS_ACCESS_KEY_ID}"     \
+        && -n "${AWS_SECRET_ACCESS_KEY}" \
+        && -n "${AWS_SESSION_TOKEN}"     \
+    ]]; then
+        export AWS_ROLE="$(echo ${role_arn} | cut -d'/' -f 2)"
+        export AWS_ROLE_ARN="${role_arn}"
+        export AWS_ACCOUNT_ID="$(echo ${role_arn} | cut -d':' -f 5)"
+
+        echo "Successfully assumed the role with ARN ${role_arn}."
+        echo "Access keys valid until ${AWS_SESSION_EXPIRY}."
+
+        _print_prod_warning $account_alias
+
+        return 0
+    fi
+
+    return 1
+}
+
+function _aws_check_creds() {
+    local caller_identity_json="$(aws sts get-caller-identity)"
+
+    if ! [ "${?}" -eq 0 ]; then
+        echo "Error: unable to verify credentials with AWS" >&2
+
+        return 1
+    fi
+
+    local account_id="$(echo $caller_identity_json | jq -r .Account)"
+    local arn="$(echo $caller_identity_json | jq -r .Arn)"
+    local user_id="$(echo $caller_identity_json | jq -r .UserId)"
+
+    if [[ -n "${account_id}" && -n "${arn}" && -n "${user_id}" ]]; then
+        export AWS_ACCOUNT_ID=${account_id}
+        echo "Credentials valid for the following Account/User:"
+        echo "  Account ID      : ${account_id}"
+        echo "  ARN             : ${arn}"
+        echo "  User ID         : ${user_id}"
+        echo "  Current Account : ${account_name}"
+
+        if ! [[ -z ${AWS_SESSION_EXPIRY} ]]; then
+            echo "Access keys valid until ${AWS_SESSION_EXPIRY} UTC"
+        fi
+
+        return 0
+    else
+        echo "Unhandled error with 'aws sts get-caller-identity'" >&2
+
+        return 1
+    fi
+}
+
+function _aws_reset_creds() {
+    echo "Clearing AWS credential environment variables.  Now back to your defaults:"
+    echo
+
+    export AWS_ACCESS_KEY_ID=""
+    export AWS_SECRET_ACCESS_KEY=""
+    export AWS_SESSION_TOKEN=""
+    export AWS_SESSION_EXPIRY=""
+    export account_name=""
+
+    _aws_check_creds
+}
+
+function _get_account_id() {
+    echo $(jq -r --arg CLI_ALIAS $1 '.accounts[] | select(.cli_alias == $CLI_ALIAS) | .id'  aws-accounts.json)
+}
+
+function _get_account_role_to_assume() {
+    echo $(jq -r --arg CLI_ALIAS $1 '.accounts[] | select(.cli_alias == $CLI_ALIAS) | .role_name'  aws-accounts.json)
+}
+
+function _get_session_duration() {
+    echo $(jq -r --arg CLI_ALIAS $1 '.accounts[] | select(.cli_alias == $CLI_ALIAS) | .session_duration'  aws-accounts.json)
+}
+
+function _print_prod_warning() {
+    local NOCOLOR='\033[0m'
+    local YELLOW='\033[1;33m'
+
+    local is_prod=$(jq -r --arg CLI_ALIAS $1 '.accounts[] | select(.cli_alias == $CLI_ALIAS) | .prod'  aws-accounts.json)
+
+    if $is_prod; then
+        echo
+        echo -e "${YELLOW}WARNING: You've switched to a production account.${NOCOLOR}"
+    fi
+}
+
+function _get_cli_aliases() {
+    echo $(jq -r '.accounts | map(.cli_alias) | join(" | ")'  aws-accounts.json)
+}

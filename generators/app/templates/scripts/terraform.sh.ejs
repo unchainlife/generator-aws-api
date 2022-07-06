@@ -1,0 +1,65 @@
+function _terraform_help() {
+    echo
+    echo "<%=project%> terraform <command> [options]"
+    echo
+    echo "commands:"
+    echo "  help          - this help screen"
+    echo "  validate      - runs 'terraform validate'"
+    echo "  fmt           - runs 'terraform fmt'"
+    echo "  init <env>    - runs 'terraform init'"
+    echo "  plan <env>    - runs 'terraform plan'"
+    echo "  apply <env>   - runs 'terraform apply'"
+    echo "  destroy <env> - runs 'terraform destroy'"
+    echo
+}
+
+function _terraform() {
+  command=$1
+  env=$2
+  args=(${@:3})
+
+  case $command in
+    "validate")
+    cd $root/terraform  
+    terraform validate $args
+    ;;
+
+    "fmt")
+    cd $root/terraform
+    terraform fmt $args
+    ;;
+
+    "init")
+    cd $root/terraform
+    terraform workspace select $env || terraform workspace new $env
+    terraform init $args
+    ;;
+
+    "plan")
+    cd $root/terraform
+    terraform workspace select $env || terraform workspace new $env
+    terraform init
+    terraform plan -var-file="./etc/${env}.tfvars" -out=./tfplan $args
+    ;;
+
+    "apply")
+    cd $root/terraform
+    terraform workspace select $env || terraform workspace new $env
+    terraform init
+    terraform apply $args ./tfplan
+    ;;
+
+    "destroy")
+    cd $root/terraform
+    terraform workspace select $env || terraform workspace new $env
+    terraform init
+    terraform destroy -var-file=./etc/dev.tfvars $args
+    if [ $env != "default" ]; then
+      terraform workspace select default
+      terraform workspace delete $env
+    fi
+    ;;
+
+    *) _terraform_help $args ;;
+  esac
+}
