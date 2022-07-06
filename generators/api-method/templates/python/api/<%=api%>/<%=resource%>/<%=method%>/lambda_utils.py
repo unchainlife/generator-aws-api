@@ -1,5 +1,10 @@
+# -----------------------------------------------------------------------------
+# WARNING:  This is a scaffolded file and, while you should feel free to edit
+# it, please be aware that future use of the scaffolder could cause changes to
+# be lost.
+# -----------------------------------------------------------------------------
 import json
-from handler import Params, Config, handle
+from handler import Params, Config
 from pydantic import ValidationError
 
 def validate_params(event) -> tuple[int, any]:
@@ -18,7 +23,7 @@ def validate_params(event) -> tuple[int, any]:
     except Exception as e:
         return 500, { "message": str(e) }
 
-def execute_handler(params: Params, config: Config, **dependencies) -> tuple[int, any]:
+def execute_handler(handle, params: Params, config: Config, **dependencies) -> tuple[int, any]:
     """
     Executes the handler and wraps it in exception handling
     """

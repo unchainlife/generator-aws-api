@@ -23,6 +23,8 @@ class AwsApiGenerator extends BaseGenerator {
       {},
       { globOptions: { dot: true } },
     );
+
+    this.config.save();
   }
 }
 
