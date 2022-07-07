@@ -5,7 +5,8 @@ resource "aws_subnet" "<%=name%>" {
     availability_zone = local.<%=vpc%>_availability_zones[count.index] 
     cidr_block        = cidrsubnet(aws_vpc.<%=vpc%>.cidr_block, 8, count.index + <%=cidr_block_offset%>)
 }
-<%if (type === 'public') {%>
+
+<% if (type === 'public') { -%>
 resource "aws_nat_gateway" "<%=name%>" {
     count = length(aws_subnet.<%=name%>)
 
@@ -37,11 +38,11 @@ resource "aws_route_table" "<%=vpc%>_private" {
         Name = "${local.prefix}_<%=vpc%>_private"
     }
 }
-<%} else if (type === 'private') { %>
+<% } else if (type === 'private') { -%>
 resource "aws_route_table_association" "<%=name%>" {
     count = length(aws_subnet.<%=name%>)
 
     subnet_id      = aws_subnet.<%=name%>[count.index].id
     route_table_id = aws_route_table.<%=vpc%>_private[count.index].id
 }
-<%}%>
+<% } -%>
