@@ -1,12 +1,24 @@
 <%
   const toKebabCase = s => s.match(/[A-Z][a-z0-9]*/g).map(s => s.toLowerCase()).join('-');
-%>
-
+-%>
 resource "aws_s3_bucket" "<%=name%>" {
   bucket = "${local.prefix}--<%=name%>"
 }
+<% if (kms_key !== "(none)") { -%>
 
+resource "aws_s3_bucket_server_side_encryption_configuration" "<%=name%>" {
+  bucket = aws_s3_bucket.<%=name%>.bucket
+
+  rule {
+    apply_server_side_encryption_by_default {
+      kms_master_key_id = aws_kms_key.<%=kms_key%>.arn
+      sse_algorithm     = "aws:kms"
+    }
+  }
+}
+<% } -%>
 <% if (expiration > 0 || transition > 0) { -%>
+
 # ------------------------------------------------------------------------------
 # Lifecycle Rules
 # ------------------------------------------------------------------------------
@@ -51,9 +63,9 @@ resource "aws_s3_bucket_acl" "<%=name%>" {
   bucket = aws_s3_bucket.<%=name%>.id
   acl    = "private"
 }
-
 <% if (versioning==='yes') { -%>
-# ------------------------------------------------------------------------------
+
+  # ------------------------------------------------------------------------------
 # Versioning
 # ------------------------------------------------------------------------------
 

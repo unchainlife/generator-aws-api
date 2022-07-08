@@ -1,4 +1,4 @@
-const { BaseGenerator, processDestinationPath, kebabCase } = require('../../common');
+const { BaseGenerator, processDestinationPath, kebabCase, kmsKeys } = require('../../common');
 
 class S3Generator extends BaseGenerator {
 
@@ -9,6 +9,7 @@ class S3Generator extends BaseGenerator {
     this._input({ name: "versioning", type: 'list', choices: ['yes', 'no'] });
     this._input({ name: "expiration", dataType: Number, type: 'input', default: 90 });
     this._input({ name: "transition", dataType: Number, type: 'input', default: 365 });
+    this._input({ name: "kms_key", type: 'list', choices: kmsKeys(this.destinationRoot()) })
   }
 
   async create_api() {
