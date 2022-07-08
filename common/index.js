@@ -2,6 +2,8 @@ const fs = require('fs');
 const path = require('path');
 const Generator = require('yeoman-generator');
 
+const NONE = "(none)"
+
 const or = (a, b) => s => {
 	const ra = a(s);
 	if (ra === true) return true;
@@ -79,10 +81,19 @@ const apiResources = root => ({ api }) => [
 	     .filter(exp => exp)
 	     .map(exp => exp[1])
 ];
+
 const layers = root => ({ }) => fs.readdirSync(path.join(root, 'terraform'))
 	.map(f => f.match(new RegExp(`^layer__([^_]+)\.tf$`)))
 	.filter(exp => exp)
 	.map(exp => exp[1]);
+
+const kmsKeys = (root, strict) => ({ }) => [
+	...(strict ? [] : [NONE]),
+	...fs.readdirSync(path.join(root, 'terraform'))
+		.map(f => f.match(new RegExp(`^kms__([^_]+)\.tf$`)))
+		.filter(exp => exp)
+		.map(exp => exp[1])
+];
 
 const resolve = (v, ...args) => typeof(v) === 'function' ? v(...args) : v;
 
@@ -128,6 +139,7 @@ class BaseGenerator extends Generator {
 }
 
 module.exports = {
+	NONE,
 	BaseGenerator,
 	vpcs,
 	subnets,
@@ -137,6 +149,7 @@ module.exports = {
 	apis,
 	apiResources,
 	layers,
+	kmsKeys,
 	or,
 	nullable,
 	pascalCase,

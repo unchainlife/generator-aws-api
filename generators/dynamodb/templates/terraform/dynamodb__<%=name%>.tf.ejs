@@ -24,6 +24,12 @@ resource "aws_dynamodb_table" "<%=name%>" {
     enabled        = true
   }
 <% } -%>
+<% if (kms_key !== "(none)") { -%>
+  server_side_encryption {
+    enabled = true
+    kms_key_arn = aws_kms_key.<%=kms_key%>.arn
+  }
+<% } -%>
 }
 
 resource "aws_iam_policy" "<%=name%>__dynamodb-read" {
