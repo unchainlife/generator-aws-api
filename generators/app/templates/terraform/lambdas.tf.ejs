@@ -15,7 +15,7 @@ data "aws_iam_policy_document" "lambda-logs" {
       "logs:CreateLogGroup"
     ]
     resources = [
-      "arn:aws:logs:eu-west-2:${var.account}:*"
+      "arn:aws:logs:eu-west-2:${var.assume_account}:*"
     ]
   }
   statement  {
@@ -26,7 +26,7 @@ data "aws_iam_policy_document" "lambda-logs" {
       "logs:PutLogEvents"
     ]
     resources = [
-      "arn:aws:logs:eu-west-2:${var.account}:log-group:/aws/lambda/${local.prefix}_*:*"
+      "arn:aws:logs:eu-west-2:${var.assume_account}:log-group:/aws/lambda/${local.prefix}_*:*"
     ]
   }
 }
