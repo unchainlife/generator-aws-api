@@ -5,7 +5,7 @@
 # -----------------------------------------------------------------------------
 import os
 from this import s
-from v1.handler import Config, handle, build_persistent_dependencies
+from handler import Config, handle, build_persistent_dependencies
 from lambda_utils import validate_params, execute_handler, render_response
 
 # -----------------------------------------------------------------------------

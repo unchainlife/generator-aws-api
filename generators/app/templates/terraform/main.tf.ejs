@@ -1,7 +1,6 @@
 provider "aws" {
   region            = "<%=region%>"
   assume_role {
-    count = var.account == "" ? 0 : 1
     role_arn = "arn:aws:iam::${var.assume_account}:role/${var.assume_role}"
   }
 }

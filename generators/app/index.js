@@ -12,11 +12,11 @@ class AppGenerator extends BaseGenerator {
     this._input({ name: "account_cli_alias",    type: "input",  default: "mgmt" });
     this._input({ name: "account_role_name",    type: "input" });
     this._input({ name: "assume_dev_account",   type: "input", message: "dev account (multi-account only)", default: ({ account_id }) => account_id });
-    this._input({ name: "assume_dev_role",      type: "input", message: "dev account (multi-account only)", default: ({ account_role_name }) => account_role_name });
-    this._input({ name: "assume_test_account",  type: "input", message: "dev account (multi-account only)", default: ({ account_id }) => account_id });
-    this._input({ name: "assume_test_role",     type: "input", message: "dev account (multi-account only)", default: ({ account_role_name }) => account_role_name });
-    this._input({ name: "assume_prod_account",  type: "input", message: "dev account (multi-account only)", default: ({ account_id }) => account_id });
-    this._input({ name: "assume_prod_role",     type: "input", message: "dev account (multi-account only)", default: ({ account_role_name }) => account_role_name });
+    this._input({ name: "assume_dev_role",      type: "input", message: "dev role (multi-account only)", default: ({ account_role_name }) => account_role_name });
+    this._input({ name: "assume_test_account",  type: "input", message: "test account (multi-account only)", default: ({ account_id }) => account_id });
+    this._input({ name: "assume_test_role",     type: "input", message: "test role (multi-account only)", default: ({ account_role_name }) => account_role_name });
+    this._input({ name: "assume_prod_account",  type: "input", message: "prod account (multi-account only)", default: ({ account_id }) => account_id });
+    this._input({ name: "assume_prod_role",     type: "input", message: "prod role (multi-account only)", default: ({ account_role_name }) => account_role_name });
   }
 
   async core_application() {
