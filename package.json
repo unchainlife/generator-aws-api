@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "description": "Scaffold AWS api-gateway using terraform",
   "files": [
-	  "generators"
+    "generators"
   ],
   "keywords": [
     "yeoman-generator"
@@ -11,6 +11,7 @@
   "author": "chris@unchain.life",
   "license": "ISC",
   "dependencies": {
+    "js-yaml": "^4.1.0",
     "yeoman-generator": "^5.4.2"
   }
 }

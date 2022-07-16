@@ -1,0 +1,24 @@
+#locals{
+#    "get_codingtips_arn" = "${aws_lambda_function.get-tips-lambda.invoke_arn}"
+#    "x-amazon-coding-tips-apigateway-integration" = ""
+#}
+data "template_file" "api_<%=name%>_swagger" {
+    template = file("../api/<%=name%>/swagger.yaml")
+
+    vars = {
+    <% for (const operationId of operations) { -%>
+        method_<%=operationId%> = "arn:aws:apigateway:eu-west-2:lambda:path/2015-03-31/functions/arn:aws:lambda:eu-west-2:${var.assume_account}:function:${local.prefix}--api--<%=name%>--<%=operationId%>/invocations"
+    <% } -%>
+    }
+}
+
+resource "aws_api_gateway_rest_api" "<%=name%>" {
+    name        = "ServerlessExample"
+    description = "Terraform Serverless Application Example"
+    body        = data.template_file.<%=`api_${name}_swagger`%>.rendered
+}
+  
+resource "aws_api_gateway_deployment" "<%=name%>" {
+    rest_api_id = aws_api_gateway_rest_api.<%=name%>.id
+    stage_name  = "production"
+}
