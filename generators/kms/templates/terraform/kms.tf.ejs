@@ -1,0 +1,10 @@
+locals {
+    kms = {
+        deletion_window_in_days = var.deletion_window_in_days
+    }
+}
+
+variable "deletion_window_in_days" {
+    type    = number
+    default = 90
+}

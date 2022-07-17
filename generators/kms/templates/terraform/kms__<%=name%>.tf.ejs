@@ -1,4 +1,4 @@
 resource "aws_kms_key" "<%=name%>" {
   description             = "<%=description%>"
-  deletion_window_in_days = 14
+  deletion_window_in_days = locals.kms.deletion_window_in_days
 }
