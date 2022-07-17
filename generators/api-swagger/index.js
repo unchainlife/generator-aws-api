@@ -84,7 +84,7 @@ class ApiSwaggerGenerator extends BaseGenerator {
         uri: `\${method_${operationId}}`,
         responses: {
           default: {
-            statusCode: "200"
+            statusCode: Object.keys(json.paths[path][method].responses)[0]
           }
         },
         passthroughBehavior: 'when_no_match',
@@ -124,6 +124,13 @@ class ApiSwaggerGenerator extends BaseGenerator {
         vpc,
         layers,
       };
+      await this.fs.copyTplAsync(
+        this.templatePath('each/**/*'),
+        this.destinationRoot(),
+        data,
+        {},
+        { globOptions: { dot: true } },
+      );
       await this.fs.copyTplAsync(
         this.templatePath(`${language}/**/*`),
         this.destinationRoot(),

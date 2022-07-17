@@ -1,4 +1,4 @@
-const { BaseGenerator, processDestinationPath, eventBuses, required, languages, languageRuntime, languageIgnorePattern, vpcs, sourceName } = require('../../common');
+const { BaseGenerator, processDestinationPath, eventBuses, required, languages, languageRuntime, languageIgnorePattern, vpcs } = require('../../common');
 
 class EventBusRuleGenerator extends BaseGenerator {
 

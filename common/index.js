@@ -10,12 +10,13 @@ const or = (a, b) => s => {
 	return b(s);
 }
 const nullable = s => s == '' || "Value must be empty";
-const pascalCase = s => /[A-Z][A-Za-z0-9]*/.test(s) || "Value must be PascalCase";
-const camelCase = s => /[a-z][A-Za-z0-9]*/.test(s) || "Value must be camelCase";
-const kebabCase = s => /[a-z][a-z0-9-]*/.test(s) || "Value must be kebab-case";
-const snakeCase = s => /[a-z][a-z0-9_]*/.test(s) || "Value must be snake_case";
 const required = s => /.+/.test(s) || "Value is required";
-const sourceName = s => /([a-z]+)(\.[a-z]+)+/.test(s) || "Must be an app name com.mycompany.mpapp";
+const shortCode = s => /^[a-z]{1,6}$/.test(s) || "Value must be 1-6 lowercase characters";
+const pascalCase = s => /^[A-Z][A-Za-z0-9]*$/.test(s) || "Value must be PascalCase";
+const camelCase = s => /^[a-z][A-Za-z0-9]*$/.test(s) || "Value must be camelCase";
+const kebabCase = s => /^[a-z][a-z0-9-]*$/.test(s) || "Value must be kebab-case";
+const snakeCase = s => /^[a-z][a-z0-9_]*$/.test(s) || "Value must be snake_case";
+const domainName = s => /^([a-z]+)(\.[a-z]+)+$/.test(s) || "Must be an app name com.mycompany.mpapp";
 
 const toKebabCase = s => s.match(/[A-Z][a-z0-9]*/g).map(s => s.toLowerCase()).join('-');
 
@@ -145,12 +146,13 @@ module.exports = {
 	subnets,
 	eventBuses,
 	required,
-	sourceName,
+	domainName,
 	apis,
 	apiResources,
 	layers,
 	kmsKeys,
 	or,
+	shortCode,
 	nullable,
 	pascalCase,
 	camelCase,

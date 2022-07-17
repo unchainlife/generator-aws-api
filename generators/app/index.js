@@ -1,11 +1,11 @@
 const fs = require('fs/promises');
-const { BaseGenerator, kebabCase } = require("../../common");
+const { BaseGenerator, kebabCase, shortCode } = require("../../common");
 
 class AppGenerator extends BaseGenerator {
   constructor(args, opts) {
     super(args, opts);
 
-    this._input({ name: "project",              type: "input",  validate: kebabCase, store: true });
+    this._input({ name: "project",              type: "input",  validate: shortCode, store: true });
     this._input({ name: "region",               type: "list",   choices: ["eu-west-2"], store: true });
     this._input({ name: "account_id",           type: "input" });
     this._input({ name: "account_aws_alias",    type: "input",  default: "mgmt" });
