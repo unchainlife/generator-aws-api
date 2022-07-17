@@ -1,22 +1,22 @@
-function _code_help() {
+function _make_help() {
     echo
-    echo "<%=project%> code <command> [options]"
+    echo "<%=project%> make <command> [options]"
     echo
     echo "commands:"
     echo "  help          - this help screen"
     echo "  build         - runs 'terraform validate'"
 }
 
-function _code_build() {
+function _make_build() {
     find $root -name build.sh | xargs -I % sh -c 'cd $(dirname %) && ./build.sh'
 }
 
-function _code() {
+function _make() {
     command=$1
     args=(${@:2})
 
     case $command in
-        "build") _code_build $args ;;
-        *) _code_help $args ;;
+        "build") _make_build $args ;;
+        *) _make_help $args ;;
     esac
 }

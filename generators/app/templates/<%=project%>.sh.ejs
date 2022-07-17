@@ -2,7 +2,7 @@ export root=$(cd $(dirname ${BASH_SOURCE[0]:-$0}) && pwd)
 
 source $root/scripts/aws.sh
 source $root/scripts/terraform.sh
-source $root/scripts/code.sh
+source $root/scripts/make.sh
 
 export file="${BASH_SOURCE##*/}"
 
@@ -17,7 +17,7 @@ function _show_help() {
     echo
     echo "commands:"
     echo "  help      - this help screen"
-    echo "  code      - calls the code/build routines"
+    echo "  make      - calls the make/build routines"
     echo "  aws       - aws commands"
     echo "  terraform - terraform commands"
     echo
@@ -40,7 +40,7 @@ function <%=project%>() {
 
   case $command in
     "aws") _aws $args ;;
-    "code") _code $args ;;
+    "make") _make $args ;;
     "terraform") _terraform $args ;;
     *) _show_help $args ;;
   esac
