@@ -1,12 +1,28 @@
-cd ..
-rm -rf ./build
-rm -rf ./out
-if [ ! -d "venv" ]; then
-    python -m venv venv
-fi
-source venv/bin/activate
-pip install -r requirements.txt
-python setup.py install
-mkdir -p out/python
-cp -R venv/lib out/python
-deactivate
+function _build() {
+    rm -rf ../out
+    mkdir ../out
+    cp -R ../*.py ../out
+    rm -r ../out/*_test.py
+    if [ ! -d "../venv" ]; then
+        python -m venv ../venv
+    fi
+    source ../venv/bin/activate
+    pip install --target ../out/  -r ../requirements.txt
+    deactivate
+}
+
+function _clean() {
+    echo "Cleaning $(dirname $(pwd))"
+    rm -rf ../build
+    rm -rf ../dist
+    rm -rf ../*.egg-info
+}
+
+command=$1
+args=(${@:2})
+
+case $command in
+    "build") _build $args ;;
+    "clean") _clean $args ;;
+    "*") echo "Unhandled command ${command}"
+esac

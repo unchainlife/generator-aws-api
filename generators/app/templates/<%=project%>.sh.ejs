@@ -1,8 +1,8 @@
 export root=$(cd $(dirname ${BASH_SOURCE[0]:-$0}) && pwd)
 
-source $root/scripts/aws.sh
-source $root/scripts/terraform.sh
-source $root/scripts/make.sh
+source $root/scripts/_aws.sh
+source $root/scripts/_terraform.sh
+source $root/scripts/_make.sh
 
 export file="${BASH_SOURCE##*/}"
 
