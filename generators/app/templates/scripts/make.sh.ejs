@@ -8,7 +8,7 @@ function _make_help() {
 }
 
 function _make_build() {
-    find $root -name build.sh | xargs -I % sh -c 'cd $(dirname %) && ./build.sh'
+    find $root -name make.sh | xargs -I % sh -c 'cd $(dirname %) && ./make.sh build'
 }
 
 function _make() {
