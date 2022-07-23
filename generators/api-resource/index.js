@@ -1,4 +1,4 @@
-const { BaseGenerator, kebabCase, apis, apiResources, toKebabCase } = require("../../common");
+const { BaseGenerator, kebabCase, apis, apiResources, safeNone, isNone, isNotNone } = require("../../common");
 
 class ApiResourceGenerator extends BaseGenerator {
 
@@ -13,12 +13,18 @@ class ApiResourceGenerator extends BaseGenerator {
 
   async create_api_resource() {
     let answers = await this._prompt();
-    answers.fullname = [answers.parent, answers.resource].filter(s => s).join('-');
+    const { parent, resource } = answers;
+    const data = {
+      ...answers,
+      isNone,
+      fullname: [parent, resource].filter(isNotNone).join('-'),
+      safe_name: safeNone(parent)
+    };
 
     await this.fs.copyTplAsync(
       this.templatePath('**/*.ejs'),
       this.destinationRoot(),
-      answers,
+      data,
       {},
       { globOptions: { dot: true } },
     )

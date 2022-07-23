@@ -3,6 +3,9 @@ const path = require('path');
 const Generator = require('yeoman-generator');
 
 const NONE = "(none)"
+const isNone = v => v === NONE;
+const isNotNone = v => !isNone(v);
+const safeNone = (v, safeValue = '') => isNone(v) ? safeValue : v; 
 
 const or = (a, b) => s => {
 	const ra = a(s);
@@ -45,63 +48,24 @@ const languageIgnorePattern = language => Object
 	.filter(([lang, _]) => lang !== language)
 	.map(([_, opt]) => `**/*.${opt.extension}.ejs`);
 
-const vpcs = (root, strict) => [
-	...(strict ? [] : ['']),
-	...fs.readdirSync(path.join(root, 'terraform'))
-	     .map(f => f.match(new RegExp(`^vpc__([^_]+)\.tf$`)))
-	     .filter(exp => exp)
-	     .map(exp => exp[1])
-	];
-
-const subnets = (root, vpc) => [
-	'',
-	...fs.readdirSync(path.join(root, 'terraform'))
-			.map(f => f.match(new RegExp(`^vpc__${vpc}__([^_]+)\.tf$`)))
+const list = ({ root, pattern, strict, index = 1 }) => {
+	return [
+		...(strict ? [] : [ NONE ]),
+		...fs.readdirSync(path.join(root, 'terraform'))
+			.map(f => f.match(new RegExp(pattern)))
 			.filter(exp => exp)
-			.map(exp => exp[1])
-	];
-	
-const eventBuses = root => () => [
-	...fs.readdirSync(path.join(root, 'terraform'))
-			.map(f => f.match(new RegExp(`^eventbus__([^_]+)\.tf$`)))
-			.filter(exp => exp)
-			.map(exp => exp[1])
-];
+			.map(exp => exp[index])
+	]
+};
 
-const apis = root => () => [
-	...fs.readdirSync(path.join(root, 'terraform'))
-	     .map(f => f.match(new RegExp(`^api__([^_]+)\.tf$`)))
-	     .filter(exp => exp)
-	     .map(exp => exp[1])
-];
-
-const zones = root => () => [
-	...fs.readdirSync(path.join(root, 'terraform'))
-	     .map(f => f.match(new RegExp(`^dns__([^_]+)\.tf$`)))
-	     .filter(exp => exp)
-	     .map(exp => exp[1])
-];
-
-const apiResources = root => ({ api }) => [
-	'',
-	...fs.readdirSync(path.join(root, 'terraform'))
-	     .map(f => f.match(new RegExp(`^api__${api}__([^_]+)\.tf$`)))
-	     .filter(exp => exp)
-	     .map(exp => exp[1])
-];
-
-const layers = root => ({ }) => fs.readdirSync(path.join(root, 'terraform'))
-	.map(f => f.match(new RegExp(`^layer__([^_]+)\.tf$`)))
-	.filter(exp => exp)
-	.map(exp => exp[1]);
-
-const kmsKeys = (root, strict) => ({ }) => [
-	...(strict ? [] : [NONE]),
-	...fs.readdirSync(path.join(root, 'terraform'))
-		.map(f => f.match(new RegExp(`^kms__([^_]+)\.tf$`)))
-		.filter(exp => exp)
-		.map(exp => exp[1])
-];
+const apis = root => () => list({ root, pattern: `^api__([^_\.]+)\.tf$`, strict: true });
+const apiResources = root => ({ api }) => list({ root, pattern: `^api__${api}__([^_\.]+)\.tf$`, strict: false });
+const vpcs = (root, strict) => () => list({ root, pattern: '^vpc__([^_\.]+)\.tf$', strict });
+const subnets = (root) => ({ vpc }) => list({ root, pattern: `^vpc__${vpc}__([^_\.]+)\.tf$` });
+const eventBuses = root => () => list({ root, pattern: `^eventbus__([^_\.]+)\.tf$` });
+const zones = root => () => list({ root, pattern: `^dns__([^_\.]+)\.tf$` });
+const layers = root => () => list({ root, pattern: `^layer__([^_\.]+)\.tf$`, strict: true });
+const kmsKeys = (root, strict) => () => list({ root, pattern: `^kms__([^_\.]+)\.tf$`, strict });
 
 const resolve = (v, ...args) => typeof(v) === 'function' ? v(...args) : v;
 
@@ -148,6 +112,9 @@ class BaseGenerator extends Generator {
 
 module.exports = {
 	NONE,
+	isNone,
+	isNotNone,
+	safeNone,
 	BaseGenerator,
 	vpcs,
 	subnets,
