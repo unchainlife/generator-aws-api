@@ -1,12 +1,12 @@
-const { BaseGenerator, kebabCase, apis, apiResources, safeNone, isNone, isNotNone } = require("../../common");
+const { BaseGenerator, kebabCase, listApis, listApiResources, safeNone, isNone, isNotNone } = require("../../common");
 
 class ApiResourceGenerator extends BaseGenerator {
 
   constructor(args, opts) {
     super(args, opts);
 
-    this._input({ name: "api", type: "list", choices: apis(this.destinationRoot()) });
-    this._input({ name: "parent", type: "list", choices: apiResources(this.destinationRoot()) });
+    this._input({ name: "api", type: "list", choices: listApis(this.destinationRoot()) });
+    this._input({ name: "parent", type: "list", choices: listApiResources(this.destinationRoot()) });
     this._input({ name: "resource", type: "input", validate: kebabCase });
     this._input({ name: "pathpart", type: "input", default: ({ resource }) => resource})
   }

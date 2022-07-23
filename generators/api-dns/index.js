@@ -1,12 +1,12 @@
-const { BaseGenerator, processDestinationPath, domainName, zones, apis } = require('../../common');
+const { BaseGenerator, processDestinationPath, domainName, listZones, listApis } = require('../../common');
 
 class ApiDnsGenerator extends BaseGenerator {
 
   constructor(args, opts) {
     super(args, opts);
 
-    this._input({ name: "api", type: 'list', choices: apis(this.destinationRoot()) });
-    this._input({ name: "zone", type: 'list', choices: zones(this.destinationRoot()) });
+    this._input({ name: "api", type: 'list', choices: listApis(this.destinationRoot()) });
+    this._input({ name: "zone", type: 'list', choices: listZones(this.destinationRoot()) });
     this._input({ name: 'subdomain', type: 'input' });
     this._input({ name: 'base_path', type: 'input' });
   }

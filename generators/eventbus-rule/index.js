@@ -1,4 +1,4 @@
-const { BaseGenerator, processDestinationPath, eventBuses, required, languages, languageRuntime, languageIgnorePattern, vpcs } = require('../../common');
+const { BaseGenerator, processDestinationPath, listEventBuses, required, languages, languageRuntime, languageIgnorePattern, listVpcs } = require('../../common');
 
 class EventBusRuleGenerator extends BaseGenerator {
 
@@ -10,7 +10,7 @@ class EventBusRuleGenerator extends BaseGenerator {
       name: 'eventbus',
       message: 'Event Bus',
       type: 'list',
-      choices: eventBuses(this.destinationRoot()),
+      choices: listEventBuses(this.destinationRoot()),
     })
     this._input({
       name: 'name',
@@ -47,7 +47,7 @@ class EventBusRuleGenerator extends BaseGenerator {
     this._input({
       name: 'vpc',
       type: 'list',
-      choices: vpcs(this.destinationRoot()),
+      choices: listVpcs(this.destinationRoot()),
     });
     this._input({
       name: 'language',

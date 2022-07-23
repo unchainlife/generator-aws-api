@@ -58,14 +58,14 @@ const list = ({ root, pattern, strict, index = 1 }) => {
 	]
 };
 
-const apis = root => () => list({ root, pattern: `^api__([^_\.]+)\.tf$`, strict: true });
-const apiResources = root => ({ api }) => list({ root, pattern: `^api__${api}__([^_\.]+)\.tf$`, strict: false });
-const vpcs = (root, strict) => () => list({ root, pattern: '^vpc__([^_\.]+)\.tf$', strict });
-const subnets = (root) => ({ vpc }) => list({ root, pattern: `^vpc__${vpc}__([^_\.]+)\.tf$` });
-const eventBuses = root => () => list({ root, pattern: `^eventbus__([^_\.]+)\.tf$` });
-const zones = root => () => list({ root, pattern: `^dns__([^_\.]+)\.tf$` });
-const layers = root => () => list({ root, pattern: `^layer__([^_\.]+)\.tf$`, strict: true });
-const kmsKeys = (root, strict) => () => list({ root, pattern: `^kms__([^_\.]+)\.tf$`, strict });
+const listApis = root => () => list({ root, pattern: `^api__([^_\.]+)\.tf$`, strict: true });
+const listApiResources = root => ({ api }) => list({ root, pattern: `^api__${api}__([^_\.]+)\.tf$`, strict: false });
+const listVpcs = (root, strict) => () => list({ root, pattern: '^vpc__([^_\.]+)\.tf$', strict });
+const listSubnets = (root) => ({ vpc }) => list({ root, pattern: `^vpc__${vpc}__([^_\.]+)\.tf$` });
+const listEventBuses = root => () => list({ root, pattern: `^eventbus__([^_\.]+)\.tf$` });
+const listZones = root => () => list({ root, pattern: `^dns__([^_\.]+)\.tf$` });
+const listLayers = root => () => list({ root, pattern: `^layer__([^_\.]+)\.tf$`, strict: true });
+const listKmsKeys = (root, strict) => () => list({ root, pattern: `^kms__([^_\.]+)\.tf$`, strict });
 
 const resolve = (v, ...args) => typeof(v) === 'function' ? v(...args) : v;
 
@@ -116,16 +116,16 @@ module.exports = {
 	isNotNone,
 	safeNone,
 	BaseGenerator,
-	vpcs,
-	subnets,
-	eventBuses,
+	listVpcs,
+	listSubnets,
+	listEventBuses,
 	required,
 	domainName,
-	apis,
-	zones,
-	apiResources,
-	layers,
-	kmsKeys,
+	listApis,
+	listZones,
+	listApiResources,
+	listLayers,
+	listKmsKeys,
 	or,
 	shortCode,
 	nullable,

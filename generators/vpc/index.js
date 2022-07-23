@@ -1,4 +1,4 @@
-const { BaseGenerator, vpcs } = require("../../common");
+const { BaseGenerator, listVpcs } = require("../../common");
 
 class VpcGenerator extends BaseGenerator {
 

@@ -1,6 +1,6 @@
 const fs = require("fs");
 const yaml = require("js-yaml");
-const { BaseGenerator, kebabCase, apis, apiResources, toKebabCase, languages, languageRuntime, vpcs, layers } = require("../../common");
+const { BaseGenerator, kebabCase, listApis, listApiResources, toKebabCase, languages, languageRuntime, listVpcs, listLayers } = require("../../common");
 
 const isYaml = filename => filename.endsWith('.yaml') || filename.endsWith('yml');
 
@@ -45,19 +45,19 @@ class ApiSwaggerGenerator extends BaseGenerator {
     this._input({ 
       name: 'vpc',
       type: 'list',
-      choices: vpcs(this.destinationRoot())
+      choices: listVpcs(this.destinationRoot())
     });
     this._input({
       name: 'layers',
       type: 'checkbox',
-      choices: layers(this.destinationRoot()),
-      default: layers(this.destinationRoot()),
+      choices: listLayers(this.destinationRoot()),
+      default: listLayers(this.destinationRoot()),
     });
   }
 
   async create_api_resource() {
     let answers = await this._prompt();
-    const { name, filename, language, vpc, layers } = answers;
+    const { name, filename, language, vpc, listLayers } = answers;
 
     const normalise = o => {
       if (Array.isArray(o)) return o.map(x => normalise(x));
@@ -122,7 +122,7 @@ class ApiSwaggerGenerator extends BaseGenerator {
         language,
         runtime: languageRuntime(language),
         vpc,
-        layers,
+        listLayers,
       };
       await this.fs.copyTplAsync(
         this.templatePath('each/**/*'),
