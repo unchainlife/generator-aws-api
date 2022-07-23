@@ -7,6 +7,8 @@ class AppGenerator extends BaseGenerator {
 
     this._input({ name: "project",              type: "input",  validate: shortCode, store: true });
     this._input({ name: "region",               type: "list",   choices: ["eu-west-2"], store: true });
+    this._input({ name: "state_bucket",         type: "input",  default: "terraform-state" });
+    this._input({ name: "lock_table",           type: "input",  default: "terraform-lock" })
     this._input({ name: "account_id",           type: "input" });
     this._input({ name: "account_aws_alias",    type: "input",  default: "mgmt" });
     this._input({ name: "account_cli_alias",    type: "input",  default: "mgmt" });

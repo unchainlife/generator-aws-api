@@ -9,8 +9,8 @@ terraform {
   backend "s3" {
     encrypt               = false
     region                = "<%=region%>"
-    bucket                = "foo-tf"
-    dynamodb_table        = "terraform-lock"
+    bucket                = "<%=state_bucket%>"
+    dynamodb_table        = "<%=lock_table%>"
     key                   = "terraform-state"
     workspace_key_prefix  = "<%=project%>"
   }

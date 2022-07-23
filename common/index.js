@@ -75,6 +75,13 @@ const apis = root => () => [
 	     .map(exp => exp[1])
 ];
 
+const zones = root => () => [
+	...fs.readdirSync(path.join(root, 'terraform'))
+	     .map(f => f.match(new RegExp(`^dns__([^_]+)\.tf$`)))
+	     .filter(exp => exp)
+	     .map(exp => exp[1])
+];
+
 const apiResources = root => ({ api }) => [
 	'',
 	...fs.readdirSync(path.join(root, 'terraform'))
@@ -148,6 +155,7 @@ module.exports = {
 	required,
 	domainName,
 	apis,
+	zones,
 	apiResources,
 	layers,
 	kmsKeys,

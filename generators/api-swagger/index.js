@@ -80,6 +80,7 @@ class ApiSwaggerGenerator extends BaseGenerator {
       );
     for (const [path, method, operationId] of endpoints) {
       json.paths[path][method]["x-amazon-apigateway-integration"] = {
+        type: "aws_proxy",
         httpMethod: "POST",
         uri: `\${method_${operationId}}`,
         responses: {
@@ -89,7 +90,6 @@ class ApiSwaggerGenerator extends BaseGenerator {
         },
         passthroughBehavior: 'when_no_match',
         contentHandling: "CONVERT_TO_TEXT",
-        type: "aws",
         // credentials: '${credentials_x}',
       };
     }

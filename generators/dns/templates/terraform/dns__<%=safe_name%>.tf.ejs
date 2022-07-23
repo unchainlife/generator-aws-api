@@ -1,0 +1,6 @@
+resource "aws_route53_zone" "<%=safe_name%>" {
+  name = "<%=name%>"
+  lifecycle {
+    prevent_destroy = true
+  }
+}
