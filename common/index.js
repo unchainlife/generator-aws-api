@@ -36,6 +36,10 @@ const _languages = {
 		extension: "js",
 		runtime: "nodejs14.x",
 	},
+	"rust": {
+		extension: "rs",
+		runtime: "provided.al2023",
+	}
 };
 
 const languages = () => Object.keys(_languages);

@@ -12,6 +12,7 @@
   "license": "ISC",
   "dependencies": {
     "js-yaml": "^4.1.0",
+    "nvm": "^0.0.4",
     "yeoman-generator": "^5.4.2"
   }
 }

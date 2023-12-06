@@ -122,7 +122,7 @@ class ApiSwaggerGenerator extends BaseGenerator {
         language,
         runtime: languageRuntime(language),
         vpc,
-        listLayers,
+        layers: listLayers,
       };
       await this.fs.copyTplAsync(
         this.templatePath('each/**/*'),
